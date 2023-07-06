@@ -1,4 +1,5 @@
 from google.cloud import speech_v2
+from typing import List, Tuple
 
 
 class SpeechToText:
@@ -22,7 +23,7 @@ class SpeechToText:
     def speech_to_text(self,
                        content: bytes = 0,
                        ) -> speech_v2.RecognizeResponse:
-        """_summary_
+        """Calls the STT Recognizer model on [content] and returns response
 
         Args:
             content (bytes, optional): Encoded audio to be transcribed (should auto detect transcoding, but preferably use FLAC). Defaults to 0.
@@ -58,3 +59,44 @@ class SpeechToText:
         # Make the request
         operation = self.__client.create_recognizer(request=request)
         print("Waiting on create_recognizer operation...")
+
+    def concatenate_transcripts(self, response: speech_v2.RecognizeResponse) -> str:
+        """
+        Concatenates the transcripts from each result in a speech_v2.RecognizeResponse.
+
+        Args:
+            response (speech_v2.RecognizeResponse): The response from the Google Cloud Speech-to-Text service.
+
+        Returns:
+            str: The concatenated transcripts.
+        """
+        transcripts = []
+        for result in response.results:
+            transcripts.append(result.alternatives[0].transcript)
+        return "".join(transcripts)
+
+    def get_transcript_list_and_times(self, response: speech_v2.RecognizeResponse) -> List[Tuple[str, float, float]]:
+        """
+        Returns a list of triples containing the transcript, start time, and end time for each result in a speech_v2.RecognizeResponse.
+
+        The start time for each result is the end time of the previous result, and the start time for the first result is 0 seconds.
+
+        Args:
+            response (speech_v2.RecognizeResponse): The response from the Google Cloud Speech-to-Text service.
+
+        Returns:
+            List[Tuple[str, float, float]]: A list of triples, where each triple contains a transcript (str), start time (float), and end time (float).
+        """
+        results = []
+        previous_end_time = 0.0  # Start time for the first result
+
+        for result in response.results:
+
+            transcript = result.alternatives[0].transcript
+            end_time = float(result.result_end_offset.seconds)
+
+            results.append((transcript, previous_end_time, end_time))
+
+            previous_end_time = end_time
+
+        return results
