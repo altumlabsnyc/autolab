@@ -19,3 +19,5 @@ rsa==4.9
 six==1.16.0
 tomli==2.0.1
 urllib3==1.26.16
+ipywidgets==8.0.4
+matplotlib==3.7.1
