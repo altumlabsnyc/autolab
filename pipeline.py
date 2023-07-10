@@ -25,6 +25,10 @@ if __name__ == "__main__":
     # major.minor.patch-pre_release_label
     print("Autolab v0.1.0-alpha")
     print("_" * 20 + "\n")
+
+    # print ("Gcloud Authenticating...")
+    # os.system('cmd /k "gcloud auth application-default login"')
+
     print ("Reading JSON...")
 
     # all dir in the JSON assume we are in the autolab/ directory
