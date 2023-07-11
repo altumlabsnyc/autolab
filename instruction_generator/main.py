@@ -47,9 +47,10 @@ if __name__ == "__main__":
         print(f"Error occurred while loading the API key: {e}")
 
     # generate instructions
-    print("Generating Instruction Set...")
     models = ["text-davinci-003", "gpt-4", "gpt-3.5-turbo"]
-    instr_generator = TranscriptConversion(model=models[2], secret_key=secret_key)
+    model = models[1]
+    print(f"Generating Instruction Set with {model}...")
+    instr_generator = TranscriptConversion(model=model, secret_key=secret_key)
     instr_set, instr_txt = instr_generator.generateInstructions(
         transcript_dir=input_dir
     )

@@ -141,7 +141,6 @@ class TranscriptConversion:
                 model="gpt-3.5-turbo",
                 messages=msg,
                 temperature=0.2,  # in range (0,2), higher = more creative
-                max_tokens=3000,
             )
             raw_instr = raw_output.get("choices")[0].get("message").get("content")
         else:

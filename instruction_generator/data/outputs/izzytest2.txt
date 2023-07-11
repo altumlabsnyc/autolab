@@ -1,11 +1,9 @@
-Summary:
-The goal of this lab is to demonstrate the setup and equipment available in the wet lab space for performing eye-related experiments.
+Summary: The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract, and set up the work table for the dissection of a pig eye.
 
 Procedure:
-- Ensure that the wet lab space has shelves for storage of instruments and supplies, a sink for utensil cleaning, and a few hoods for ventilation.
-- Prepare a fixative for the anterior capsule to reduce elasticity, if needed.
-- Prepare fixatives for injection into limbs to induce cataracts, if desired.
-- Use the microwave to induce a cataract in a large eye, and store it in the mini fridge.
-- Set up the work table with an operating microscope and teaching scope for instructional purposes.
-- Lay out all the necessary instruments on the table.
-- Use a foam head to secure the pig eye, pinning it down with pens at the approximate location of the rectus muscles.
+- Ensure that the lab space has shelves for storage, a sink for utensil cleaning, a hood, a microwave, and a mini fridge.
+- Prepare a fixative for the anterior capsule to reduce elasticity.
+- Prepare fixatives to inject into the limbs to induce a cataract.
+- Set up the work table with an operating microscope and teaching scope for instruction.
+- Lay out all the necessary instruments.
+- Use a foam head to secure the pig eye in place, pinning it down with pens at the approximate location of the rectus muscles.

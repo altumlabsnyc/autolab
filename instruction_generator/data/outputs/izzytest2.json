@@ -5,31 +5,28 @@
     "date-generated": "2023-07-11",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "The goal of this lab is to demonstrate the setup and equipment available in the wet lab space for performing eye-related experiments.",
+  "summary": "The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract, and set up the work table for the dissection of a pig eye.",
   "procedure": [
     {
       "step": ""
     },
     {
-      "step": "Ensure that the wet lab space has shelves for storage of instruments and supplies, a sink for utensil cleaning, and a few hoods for ventilation."
+      "step": "Ensure that the lab space has shelves for storage, a sink for utensil cleaning, a hood, a microwave, and a mini fridge."
     },
     {
-      "step": "Prepare a fixative for the anterior capsule to reduce elasticity, if needed."
+      "step": "Prepare a fixative for the anterior capsule to reduce elasticity."
     },
     {
-      "step": "Prepare fixatives for injection into limbs to induce cataracts, if desired."
+      "step": "Prepare fixatives to inject into the limbs to induce a cataract."
     },
     {
-      "step": "Use the microwave to induce a cataract in a large eye, and store it in the mini fridge."
+      "step": "Set up the work table with an operating microscope and teaching scope for instruction."
     },
     {
-      "step": "Set up the work table with an operating microscope and teaching scope for instructional purposes."
+      "step": "Lay out all the necessary instruments."
     },
     {
-      "step": "Lay out all the necessary instruments on the table."
-    },
-    {
-      "step": "Use a foam head to secure the pig eye, pinning it down with pens at the approximate location of the rectus muscles."
+      "step": "Use a foam head to secure the pig eye in place, pinning it down with pens at the approximate location of the rectus muscles."
     }
   ]
 }
