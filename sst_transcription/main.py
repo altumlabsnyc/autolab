@@ -2,7 +2,10 @@ from googlestt import SpeechToText
 import os
 
 if __name__ == "__main__":
-
+    # major.minor.patch-pre_release_label
+    print("Autolab v0.1.1-alpha - SpeechToText Test")
+    print("_" * 20 + "\n")
+    
     # Example of how to call STT on encoded audio bytes
     stt = SpeechToText(project_id="autolab-391921",
                        recognizer_id="recognizer1")

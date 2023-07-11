@@ -6,6 +6,10 @@ import platform
 from dotenv import load_dotenv
 
 if __name__ == "__main__":
+    # major.minor.patch-pre_release_label
+    print("Autolab v0.1.1-alpha - TranscriptConversion Test")
+    print("_" * 20 + "\n")
+    
     cwd = os.getcwd()
     
     # set input and output directories (input dir must exist before running)

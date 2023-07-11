@@ -23,13 +23,17 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
+        # @TODO Need to generate proper json for Izzy's prompt/ discuss 
         # self.gpt_prompt = """The following is a snippet of transcript of a lab experiment that was recorded and timestamped. 
-        # Edit it into a clean and concise procedure that is part of a lab report. 
-        # Assign each of the steps with the input timestamps."""
+        #                         Edit it into a clean and concise procedure that is part of a lab report. 
+        #                         Assign each of the steps with the input timestamps. """
+        
+        self.gpt_prompt = """The following transcript of a lab experiement has text with start and end times of when they were said in 
+                        a video. Edit the transcript into a clean and concise lab procedure that would appear in a lab report that contains 
+                        the start and end times in each of the bullet points. Do not include any other text other than the steps. Before 
+                        making this list, generate a short and concise summary of what we are achieving in this lab. With all those in 
+                        mind, here is the transcript: """
 
-        self.gpt_prompt = """The following transcript of a lab experiement has text with start and end times of when they were said in a video. 
-        Edit the transcript into a clean and concise lab procedure that would appear in a lab report. Then, assign each of the steps with 
-        timestamps that align with what is stated in the transcript"""
         try:           
             self.encoding = tiktoken.get_encoding("cl100k_base")
             self.encoding = tiktoken.encoding_for_model(model)
@@ -67,7 +71,7 @@ class TranscriptConversion:
 
         """
         raw_response = raw_response.strip()
-        summary, procedure_string = raw_response.split("\n\nProcedure:")
+        summary, procedure_string = raw_response.split("\n\nProcedure")
         summary_content = summary.replace("Summary:", "").strip()
         steps = procedure_string.split("\n- ")
 
@@ -88,9 +92,9 @@ class TranscriptConversion:
                 procedure.append(step_obj)
 
         metadata = {
-            "version": "0.1.1-alpha",
+            "version": "Autolab 0.1.1-alpha",
             "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
-            "date-generated": date.today.strftime("%d/%m/%Y"),
+            "date-generated": date.today().strftime("%Y-%m-%d"),
             "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
         }
 
@@ -116,15 +120,19 @@ class TranscriptConversion:
         # read in transcript txt file
         with open(transcript_dir, "r") as file:
             self.transcript = file.read()
-        num_tokens = len(self.encoding.encode(self.gpt_prompt + self.transcript))
+
+        # set prompt
+        full_prompt = self.gpt_prompt + self.transcript
+
+        num_tokens = len(self.encoding.encode(full_prompt))
         # max gpt prompt tokens is 4096. Call the api more times if source transcript is longer than 4096 tokens
         if num_tokens > 4096:
+            print("WARNING: Max GPT API prompt tokens is 4096. @TODO This needs to be handled")
             num_tokens = 4096
             print("Error: File too large for GPT-3 to process")
             exit()
 
-        # set prompt
-        self.gpt_prompt = self.gpt_prompt + self.transcript
+        
 
         openai.api_key = self.secret_key
         #count tokens to figure out a good max_tokens value
@@ -134,12 +142,14 @@ class TranscriptConversion:
 
         raw_output = openai.Completion.create(
             model=self.model,
-            prompt=self.gpt_prompt,
+            prompt=full_prompt,
             temperature=0.2,  # in range (0,2), higher = more creative
             max_tokens=num_tokens,
         )
 
         raw_instr = raw_output.get('choices')[0].get('text')
+        # print("HERE!")
+        # print(raw_instr)
 
         # old string format
         # self.instr_set = self.properReformat(raw_instr)
