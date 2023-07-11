@@ -9,25 +9,19 @@ if __name__ == "__main__":
     # major.minor.patch-pre_release_label
     print("Autolab v0.1.1-alpha - TranscriptConversion Test")
     print("_" * 20 + "\n")
-    
+
     cwd = os.getcwd()
-    
+
     # set input and output directories (input dir must exist before running)
-    # TODO need to remove. Darwin/Mac format works for Windows
-    #  system = platform.system()
-    # sep = None
-    # if system == "Darwin":  # mac
-    #     sep = "/"
-    # elif system == "Windows":  # windows
-    #     sep = "\\"
-    # else:
-    #     sep = "/"
-    input_dir = f"{cwd}/instruction_generator/data/gpt_test_transcript_time.txt"
-    output_dir = f"{cwd}/instruction_generator/data/outputs/instruction_set.json"
+    input_dir = f"{cwd}/instruction_generator/data/transcript_time2.txt"
+    output_dir = f"{cwd}/instruction_generator/data/outputs/izzytest2.json"
+    txt_output_dir = f"{cwd}/instruction_generator/data/outputs/izzytest2.txt"
 
     # Checking input dir exist
     if not os.path.isfile(input_dir):
-        print(f"Input File '{input_dir}' does not exists. Program cannot proceed. Goodbye.")
+        print(
+            f"Input File '{input_dir}' does not exists. Program cannot proceed. Goodbye."
+        )
         sys.exit()
 
     # Checking output dir not exist
@@ -45,7 +39,7 @@ if __name__ == "__main__":
     # Loading API Key
     try:
         load_dotenv()
-        secret_key = os.getenv('OPENAI_API_KEY')
+        secret_key = os.getenv("OPENAI_API_KEY")
 
         # Rest of your code using the secret_key
 
@@ -57,7 +51,9 @@ if __name__ == "__main__":
     instr_generator = TranscriptConversion(
         model="text-davinci-003", secret_key=secret_key
     )
-    instr_set = instr_generator.generateInstructions(transcript_dir=input_dir)
+    instr_set, instr_txt = instr_generator.generateInstructions(
+        transcript_dir=input_dir
+    )
     print("Done!\n")
 
     # print results
@@ -70,7 +66,8 @@ if __name__ == "__main__":
     if instr_set != None:
         with open(output_dir, "w") as json_file:
             json.dump(instr_set, json_file, indent=2)
-        print(f'Saved to \"%s\"' % output_dir)
+        print(f'Saved to "%s"' % output_dir)
+        with open(txt_output_dir, "w") as file:
+            file.write(instr_txt)
     else:
         print("Error: Cannot save JSON!")
-

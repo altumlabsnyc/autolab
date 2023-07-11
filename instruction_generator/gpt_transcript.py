@@ -23,26 +23,17 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
-        # @TODO Need to generate proper json for Izzy's prompt/ discuss 
-        # self.gpt_prompt = """The following is a snippet of transcript of a lab experiment that was recorded and timestamped. 
-        #                         Edit it into a clean and concise procedure that is part of a lab report. 
-        #                         Assign each of the steps with the input timestamps. """
-        
-        self.gpt_prompt = """The following transcript of a lab experiement has text with start and end times of when they were said in 
-                        a video. Edit the transcript into a clean and concise lab procedure that would appear in a lab report that contains 
-                        the start and end times in each of the bullet points. Do not include any other text other than the steps. Before 
-                        making this list, generate a short and concise summary of what we are achieving in this lab. With all those in 
-                        mind, here is the transcript: """
+        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", use "-" for each step. Transcript: """
 
-        try:           
+        try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
             self.encoding = tiktoken.encoding_for_model(model)
         except Exception as e:
             print("Error: Model or specified transcript location is invalid")
-    
+
     def properReformat(self, raw_response):
         """
-            Reformat raw reponse into proper string. 
+            Reformat raw reponse into proper string.
 
         Args:
             raw_response       (string): raw output from GPT model
@@ -58,38 +49,46 @@ class TranscriptConversion:
         formatted_string = "\n".join(formatted_lines)
 
         return formatted_string
-    
+
     def generateJSON(self, raw_response):
         """
-            Generates JSON file of lab instruction set
+        Generates JSON file of lab instruction set
 
-            Args:
-                raw_response (string): raw output from GPT model
+        Args:
+            raw_response (string): raw output from GPT model
 
-            Return:
-                instr_json   (json): reformatted, JSON output
+        Return:
+            instr_json   (json): reformatted, JSON output
 
         """
         raw_response = raw_response.strip()
-        summary, procedure_string = raw_response.split("\n\nProcedure")
+        print(raw_response)
+        try:
+            summary, procedure_string = raw_response.split("Procedure:")
+        except Exception as e:
+            print(f"Error: Cannot split summary and procedure. {e}")
+            exit()
         summary_content = summary.replace("Summary:", "").strip()
         steps = procedure_string.split("\n- ")
 
         procedure = []
         for step in steps:
-            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
-            match = re.match(pattern, step)
-            if match:
-                content = match.group(1).strip()
-                start_time = match.group(2).strip()
-                end_time = match.group(3).strip()
+            # Izzy trying new format that doesn't use timestamps
+            # pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            # match = re.match(pattern, step)
+            # if match:
+            #     content = match.group(1).strip()
+            #     start_time = match.group(2).strip()
+            #     end_time = match.group(3).strip()
 
-                step_obj = {
-                    "step": content,
-                    "start_time": start_time,
-                    "end_time": end_time
-                }
-                procedure.append(step_obj)
+            #     step_obj = {
+            #         "step": content,
+            #         "start_time": start_time,
+            #         "end_time": end_time,
+            #     }
+            #     procedure.append(step_obj)
+            step_obj = {"step": step.strip()}
+            procedure.append(step_obj)
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
@@ -101,20 +100,21 @@ class TranscriptConversion:
         instr_json = {
             "metadata": metadata,
             "summary": summary_content,
-            "procedure": procedure
+            "procedure": procedure,
         }
         return instr_json
-    
+
     def generateInstructions(self, transcript_dir, encoding="cl100k_base"):
         """
         apply model onto transcript
 
             Args:
                 transcript_dir      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base 
+                encoding - optional (string): tiktoken encoder base
 
             Return:
                 instr_set      (json): formatted JSON instruction set
+                raw_str       (string): raw string output from GPT model
         """
 
         # read in transcript txt file
@@ -124,34 +124,26 @@ class TranscriptConversion:
         # set prompt
         full_prompt = self.gpt_prompt + self.transcript
 
-        num_tokens = len(self.encoding.encode(full_prompt))
-        # max gpt prompt tokens is 4096. Call the api more times if source transcript is longer than 4096 tokens
-        if num_tokens > 4096:
-            print("WARNING: Max GPT API prompt tokens is 4096. @TODO This needs to be handled")
-            num_tokens = 4096
-            print("Error: File too large for GPT-3 to process")
-            exit()
-
-        
-
         openai.api_key = self.secret_key
-        #count tokens to figure out a good max_tokens value
+        # count tokens to figure out a good max_tokens value
         encoding = tiktoken.get_encoding(encoding)
         encoding = tiktoken.encoding_for_model(self.model)
-        num_tokens = len(encoding.encode(self.transcript))
+        num_tokens = 4097 - len(encoding.encode(full_prompt))
 
         raw_output = openai.Completion.create(
             model=self.model,
             prompt=full_prompt,
-            temperature=0.2,  # in range (0,2), higher = more creative
+            temperature=0,  # in range (0,2), higher = more creative
             max_tokens=num_tokens,
         )
 
-        raw_instr = raw_output.get('choices')[0].get('text')
-        # print("HERE!")
-        # print(raw_instr)
+        stop_reason = raw_output.get("choices")[0].get("finish_reason")
+        if stop_reason != "stop":
+            print(f"Error in stopping GPT: {stop_reason}")
+
+        raw_instr = raw_output.get("choices")[0].get("text")
 
         # old string format
         # self.instr_set = self.properReformat(raw_instr)
         self.instr_set = self.generateJSON(raw_instr)
-        return self.instr_set
+        return self.instr_set, raw_instr

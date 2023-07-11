@@ -23,15 +23,16 @@ import sys
 from dotenv import load_dotenv
 import platform
 
+
 def directoryPrecheck(input_json):
     """
-            Verifies all directories described in the JSON
+    Verifies all directories described in the JSON
 
-            Args:
-                input_json (json): read-in json file
+    Args:
+        input_json (json): read-in json file
 
-            Return:
-                status     (boolean): true if all pass, false if fail
+    Return:
+        status     (boolean): true if all pass, false if fail
 
     """
 
@@ -41,17 +42,29 @@ def directoryPrecheck(input_json):
     vid_vars = input_json["video_conversion_variables"]
 
     # Checking input dirs exist
-    input_bool = os.path.isfile(stt_vars["input_dir"]) and os.path.isfile(instr_vars["input_dir"]) and os.path.isfile(vid_vars["input_dir"])
-    output_bool = os.path.isfile(stt_vars["output_dir"]) and os.path.isfile(instr_vars["output_dir"]) and os.path.isfile(vid_vars["output_dir"])
+    input_bool = (
+        os.path.isfile(stt_vars["input_dir"])
+        and os.path.isfile(instr_vars["input_dir"])
+        and os.path.isfile(vid_vars["input_dir"])
+    )
+    output_bool = (
+        os.path.isfile(stt_vars["output_dir"])
+        and os.path.isfile(instr_vars["output_dir"])
+        and os.path.isfile(vid_vars["output_dir"])
+    )
     if not input_bool:
-        print(f"FAIL: One or more input files do not exists. Please check the input_dir variables in the 'inputs.json' file.")
+        print(
+            f"FAIL: One or more input files do not exist. Please check the input_dir variables in the 'inputs.json' file."
+        )
         return False
 
     # Checking output dirs not exist
     if output_bool:
-        print(f"FAIL: One or more of the export directories exists. Please check the output_dir variables in the 'inputs.json' file.")
+        print(
+            f"FAIL: One or more of the export directories exist. Please check the output_dir variables in the 'inputs.json' file."
+        )
         return False
-    
+
     print("PASS!")
     return True
 

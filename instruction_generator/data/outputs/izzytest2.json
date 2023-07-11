@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "version": "Autolab 0.1.1-alpha",
+    "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+    "date-generated": "2023-07-11",
+    "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
+  },
+  "summary": "This lab focuses on preparing a wet lab space for cataract surgery.",
+  "procedure": [
+    {
+      "step": ""
+    },
+    {
+      "step": "Set up shelves for storage of instruments and supplies."
+    },
+    {
+      "step": "Set up an area with a sink for cleaning utensils."
+    },
+    {
+      "step": "Prepare fixatives for the anterior capsule and limbs."
+    },
+    {
+      "step": "Use a microwave to induce a cataract."
+    },
+    {
+      "step": "Store the big eye in a mini fridge."
+    },
+    {
+      "step": "Set up an operating microscope with a teaching scope."
+    },
+    {
+      "step": "Lay out all instruments."
+    },
+    {
+      "step": "Pin the eye down with pens located where the rectus muscles would be."
+    }
+  ]
+}
