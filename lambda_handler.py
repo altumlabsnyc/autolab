@@ -1,3 +1,16 @@
+"""
+lambda_handler.py
+
+TODO
+
+Created: 07/11/2023
+
+Usage:
+- TODO
+"""
+
+from autolab import Autolab
+
 import json
 import requests
 from supabase import create_client, Client
@@ -41,7 +54,8 @@ def lambda_handler(event, context):
             f.write(response)
 
         # Generate transcript from autolab.py and return response
-        transcript_response = generate_transcript(tmp_path)
+        autolab = Autolab()
+        transcript_response = autolab.generate_transcript(tmp_path, cleanup=True, enable_logging=False)
         return {
             'statusCode': 200,
             'body': transcript_response,

@@ -1,3 +1,12 @@
+"""
+googlesst.py
+
+This module utilizes speech to text via Google's Cloud Platform
+to extract a transcript from video
+
+Created: 07/07/2023
+
+"""
 from google.cloud import speech_v2
 from typing import List, Tuple
 
@@ -7,7 +16,7 @@ class SpeechToText:
     """
 
     def __init__(self, project_id, recognizer_id):
-        """Sets up Google client and configuration.
+        """Constructor - Sets up Google client and configuration.
 
         Args:
             project_id (_type_): Google Project ID

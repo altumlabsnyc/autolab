@@ -1,15 +1,22 @@
 """
 pipeline.py
 
-This module runs the entire Autolab pipeline, and serves as the most basic version of Autolab
+This module runs the entire Autolab pipeline, and serves as the most basic version of Autolab. This includes:
+   - Video conversion into optimal audio format
+   - SpeechToText Conversion
+   - GPT Instruction Generation
 
-Contributers: Ricky Fok, Izzy Qian, Grant Rinehimer
+NOTE YOU MUST PUT INPUT FILES IN THE /Autolab WORKING DIRECTORY
+
+NOTE ALL JSON PATHS MUST REFER TO A PATH IN THE /Autolab
+     WORKING DIRECTORY
+
 Created: 07/06/2023
 
 Usage:
 - python3 pipeline.py
 - Edit all parameters in the JSON file
-- For now, you need to delete the output files if you plan to rerun the pipeline with the same output directories
+- NOTE you must to delete the output files if you plan to rerun the pipeline with the same output directories
 
 """
 from sst_transcription.googlestt import SpeechToText
@@ -25,7 +32,8 @@ import platform
 
 def directoryPrecheck(input_json):
     """
-            Verifies all directories described in the JSON
+            Verifies all directories described in the JSON for any pre-existing files (for write)
+            and already existing files (for read) that would conflict with our program
 
             Args:
                 input_json (json): read-in json file
@@ -39,17 +47,22 @@ def directoryPrecheck(input_json):
     stt_vars = input_json["transcription_variables"]
     instr_vars = input_json["instruction_variables"]
     vid_vars = input_json["video_conversion_variables"]
+    
+    # retrieve working directory
+    cwd = os.getcwd()
 
-    # Checking input dirs exist
-    input_bool = os.path.isfile(stt_vars["input_dir"]) and os.path.isfile(instr_vars["input_dir"]) and os.path.isfile(vid_vars["input_dir"])
-    output_bool = os.path.isfile(stt_vars["output_dir"]) and os.path.isfile(instr_vars["output_dir"]) and os.path.isfile(vid_vars["output_dir"])
-    if not input_bool:
-        print(f"FAIL: One or more input files do not exists. Please check the input_dir variables in the 'inputs.json' file.")
+    # Checking directory existance
+    input_bool = os.path.isfile(cwd + vid_vars["input_path"])
+    output_bool = os.path.isfile(cwd + stt_vars["output_path"]) or os.path.isfile(cwd + instr_vars["output_path"]) or os.path.isfile(cwd + vid_vars["output_path"])
+
+    # Checks if input directories exist for reference/use
+    if not input_bool: 
+        print("FAIL: One or more input files do not exists. Please check the input_path variables in the '{}' file.".format(input_json))
         return False
 
-    # Checking output dirs not exist
+    # Checks if output directories don't exist for clean write
     if output_bool:
-        print(f"FAIL: One or more of the export directories exists. Please check the output_dir variables in the 'inputs.json' file.")
+        print("FAIL: One or more of the export directories exists. Please check the output_path variables in the '{}' file.".format(input_json))
         return False
     
     print("PASS!")
@@ -70,16 +83,16 @@ if __name__ == "__main__":
         "inputs_win.json" if platform.system() == "Windows" else "inputs_mac.json"
     )
 
-    # all dir in the JSON assume we are in the autolab/ directory
+    # all paths in the JSON assume we are in the autolab/ directory
     with open(json_input) as file:
         data = json.load(file)
         print("Success!\n")
 
     # directory precheck
-    pfCheck = directoryPrecheck(data)
+    pf_check = directoryPrecheck(data)
 
     # if we fail precheck
-    if not pfCheck:
+    if not pf_check:
         sys.exit()
 
     cwd = os.getcwd()
@@ -94,8 +107,8 @@ if __name__ == "__main__":
     ###############################################
     print("Generating .flac file")
     {
-        ffmpeg.input(cwd + vid_vars["input_dir"])
-        .output(cwd + vid_vars["output_dir"], acodec="flac")
+        ffmpeg.input(cwd + vid_vars["input_path"])
+        .output(cwd + vid_vars["output_path"], acodec="flac")
         .run(quiet=True)
     }
 
@@ -109,7 +122,7 @@ if __name__ == "__main__":
         project_id=stt_vars["project_id"], recognizer_id=stt_vars["recognizer_id"]
     )
 
-    with open(cwd + stt_vars["input_dir"], "rb") as fd:
+    with open(cwd + stt_vars["input_path"], "rb") as fd:
         contents = fd.read()
     response = stt.speech_to_text(contents)
 
@@ -125,7 +138,7 @@ if __name__ == "__main__":
         format_transcript_time += f"{text} [{start_time}-{end_time}]\n"
 
     print("Done! Saving...")
-    with open(cwd + stt_vars["output_dir"], "w") as file:
+    with open(cwd + stt_vars["output_path"], "w") as file:
         file.write(format_transcript_time)
     # @TODO need to also store transcript_concat
 
@@ -135,23 +148,23 @@ if __name__ == "__main__":
     ###############################################
     print("Generating Instructions...")
 
-    transcription_dir = cwd + instr_vars["input_dir"]
-    instr_dir = cwd + instr_vars["output_dir"]
+    transcription_path = cwd + instr_vars["input_path"]
+    instr_path = cwd + instr_vars["output_path"]
 
     load_dotenv()
     secret_key = os.getenv("OPENAI_API_KEY")
     instr_generator = TranscriptConversion(
         model=instr_vars["model"], secret_key=secret_key
     )
-    instr_set = instr_generator.generateInstructions(transcript_dir=transcription_dir)
+    instr_set = instr_generator.generateInstructions(transcript_path=transcription_path)
 
     print("Done! Saving...")
     if instr_set != None:
-        with open(instr_dir, "w") as json_file:
+        with open(instr_path, "w") as json_file:
             json.dump(instr_set, json_file, indent=2)
     else:
         print("Error: Instruction Set has not been generated")
 
     print("Success (3/3)\n")
     print("_" * 20 + "\n")
-    print(f'Instructions saved to "%s"\nAutolab terminating' % instr_dir)
+    print(f'Instructions saved to "%s"\nAutolab terminating' % instr_path)

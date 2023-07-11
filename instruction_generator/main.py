@@ -1,3 +1,16 @@
+"""
+main.py
+
+This module runs a test of the TranscriptConversion class
+with example data in our local data directory
+
+Usage:
+- Set the 'input_json_path' variable
+- Run this script
+
+Created: 07/11/2023
+
+"""
 from gpt_transcript import TranscriptConversion
 import os
 import sys
@@ -12,20 +25,10 @@ if __name__ == "__main__":
     
     cwd = os.getcwd()
     
-    # set input and output directories (input dir must exist before running)
-    # TODO need to remove. Darwin/Mac format works for Windows
-    #  system = platform.system()
-    # sep = None
-    # if system == "Darwin":  # mac
-    #     sep = "/"
-    # elif system == "Windows":  # windows
-    #     sep = "\\"
-    # else:
-    #     sep = "/"
     input_dir = f"{cwd}/instruction_generator/data/gpt_test_transcript_time.txt"
     output_dir = f"{cwd}/instruction_generator/data/outputs/instruction_set.json"
 
-    # Checking input dir exist
+    # Checking input dir exists
     if not os.path.isfile(input_dir):
         print(f"Input File '{input_dir}' does not exists. Program cannot proceed. Goodbye.")
         sys.exit()
