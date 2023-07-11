@@ -23,7 +23,7 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
-        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", use "-" for each step. Transcript: """
+        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step. Transcript: """
 
         try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
@@ -62,7 +62,6 @@ class TranscriptConversion:
 
         """
         raw_response = raw_response.strip()
-        print(raw_response)
         try:
             summary, procedure_string = raw_response.split("Procedure:")
         except Exception as e:
@@ -130,18 +129,32 @@ class TranscriptConversion:
         encoding = tiktoken.encoding_for_model(self.model)
         num_tokens = 4097 - len(encoding.encode(full_prompt))
 
-        raw_output = openai.Completion.create(
-            model=self.model,
-            prompt=full_prompt,
-            temperature=0,  # in range (0,2), higher = more creative
-            max_tokens=num_tokens,
-        )
-
+        raw_output = None
+        raw_instr = None
+        if self.model == "gpt-4" or "gpt-3.5-turbo":
+            # instantiate message array
+            msg = [
+                {"role": "system", "content": self.gpt_prompt},
+                {"role": "user", "content": self.transcript},
+            ]
+            raw_output = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=msg,
+                temperature=0.2,  # in range (0,2), higher = more creative
+                max_tokens=3000,
+            )
+            raw_instr = raw_output.get("choices")[0].get("message").get("content")
+        else:
+            raw_output = openai.Completion.create(
+                model=self.model,
+                prompt=full_prompt,
+                temperature=0,  # in range (0,2), higher = more creative
+                max_tokens=num_tokens,
+            )
+            raw_instr = raw_output.get("choices")[0].get("text")
         stop_reason = raw_output.get("choices")[0].get("finish_reason")
         if stop_reason != "stop":
             print(f"Error in stopping GPT: {stop_reason}")
-
-        raw_instr = raw_output.get("choices")[0].get("text")
 
         # old string format
         # self.instr_set = self.properReformat(raw_instr)

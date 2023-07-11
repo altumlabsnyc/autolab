@@ -48,9 +48,8 @@ if __name__ == "__main__":
 
     # generate instructions
     print("Generating Instruction Set...")
-    instr_generator = TranscriptConversion(
-        model="text-davinci-003", secret_key=secret_key
-    )
+    models = ["text-davinci-003", "gpt-4", "gpt-3.5-turbo"]
+    instr_generator = TranscriptConversion(model=models[2], secret_key=secret_key)
     instr_set, instr_txt = instr_generator.generateInstructions(
         transcript_dir=input_dir
     )

@@ -5,34 +5,31 @@
     "date-generated": "2023-07-11",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "This lab focuses on preparing a wet lab space for cataract surgery.",
+  "summary": "The goal of this lab is to demonstrate the setup and equipment available in the wet lab space for performing eye-related experiments.",
   "procedure": [
     {
       "step": ""
     },
     {
-      "step": "Set up shelves for storage of instruments and supplies."
+      "step": "Ensure that the wet lab space has shelves for storage of instruments and supplies, a sink for utensil cleaning, and a few hoods for ventilation."
     },
     {
-      "step": "Set up an area with a sink for cleaning utensils."
+      "step": "Prepare a fixative for the anterior capsule to reduce elasticity, if needed."
     },
     {
-      "step": "Prepare fixatives for the anterior capsule and limbs."
+      "step": "Prepare fixatives for injection into limbs to induce cataracts, if desired."
     },
     {
-      "step": "Use a microwave to induce a cataract."
+      "step": "Use the microwave to induce a cataract in a large eye, and store it in the mini fridge."
     },
     {
-      "step": "Store the big eye in a mini fridge."
+      "step": "Set up the work table with an operating microscope and teaching scope for instructional purposes."
     },
     {
-      "step": "Set up an operating microscope with a teaching scope."
+      "step": "Lay out all the necessary instruments on the table."
     },
     {
-      "step": "Lay out all instruments."
-    },
-    {
-      "step": "Pin the eye down with pens located where the rectus muscles would be."
+      "step": "Use a foam head to secure the pig eye, pinning it down with pens at the approximate location of the rectus muscles."
     }
   ]
 }
