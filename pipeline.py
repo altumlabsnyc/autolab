@@ -54,7 +54,7 @@ def directoryPrecheck(input_json):
     )
     if not input_bool:
         print(
-            f"FAIL: One or more input files do not exist. Please check the input_dir variables in the 'inputs.json' file."
+            f"FAIL: One or more input files do not exist. Please check the input_dir variables in the 'inputs.json' file. {stt_vars['input_dir'], instr_vars['input_dir'], vid_vars['input_dir']}"
         )
         return False
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
     # 2) Instruction Generation
     ###############################################
-    print("Generating Instructions...")
+    print(f"Generating Instructions with {instr_vars['model']}...")
 
     transcription_dir = cwd + instr_vars["input_dir"]
     instr_dir = cwd + instr_vars["output_dir"]
@@ -164,6 +164,7 @@ if __name__ == "__main__":
             json.dump(instr_set, json_file, indent=2)
     else:
         print("Error: Instruction Set has not been generated")
+        sys.exit()
 
     print("Success (3/3)\n")
     print("_" * 20 + "\n")

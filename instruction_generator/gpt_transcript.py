@@ -1,10 +1,6 @@
 from dotenv import load_dotenv
-
 import openai
 import tiktoken
-import os
-import re
-
 from datetime import date
 
 
@@ -45,7 +41,7 @@ class TranscriptConversion:
 
         lines = raw_response.split("\n")
         lines = [line.strip() for line in lines if line.strip()]
-        formatted_lines = [f"{line}" for index, line in enumerate(lines)]
+        formatted_lines = [f"{line}" for line in lines]
         formatted_string = "\n".join(formatted_lines)
 
         return formatted_string
@@ -66,9 +62,9 @@ class TranscriptConversion:
             summary, procedure_string = raw_response.split("Procedure:")
         except Exception as e:
             print(f"Error: Cannot split summary and procedure. {e}")
-            exit()
+            return None
         summary_content = summary.replace("Summary:", "").strip()
-        steps = procedure_string.split("\n- ")
+        steps = procedure_string.split("\n-")
 
         procedure = []
         for step in steps:
@@ -86,6 +82,8 @@ class TranscriptConversion:
             #         "end_time": end_time,
             #     }
             #     procedure.append(step_obj)
+            if step.strip() == "":
+                continue
             step_obj = {"step": step.strip()}
             procedure.append(step_obj)
 
@@ -129,10 +127,10 @@ class TranscriptConversion:
         encoding = tiktoken.encoding_for_model(self.model)
         num_tokens = 4097 - len(encoding.encode(full_prompt))
 
+        # Call one of the GPT models
         raw_output = None
         raw_instr = None
         if self.model == "gpt-4" or "gpt-3.5-turbo":
-            # instantiate message array
             msg = [
                 {"role": "system", "content": self.gpt_prompt},
                 {"role": "user", "content": self.transcript},
@@ -141,9 +139,10 @@ class TranscriptConversion:
                 model="gpt-3.5-turbo",
                 messages=msg,
                 temperature=0.2,  # in range (0,2), higher = more creative
+                # chatcompletion doesn't need max_tokens parameter
             )
             raw_instr = raw_output.get("choices")[0].get("message").get("content")
-        else:
+        elif self.model == "text-davinci-003":
             raw_output = openai.Completion.create(
                 model=self.model,
                 prompt=full_prompt,
@@ -151,9 +150,14 @@ class TranscriptConversion:
                 max_tokens=num_tokens,
             )
             raw_instr = raw_output.get("choices")[0].get("text")
+        else:
+            print(f"Error: Invalid model specified - {self.model}")
+            return None
+
         stop_reason = raw_output.get("choices")[0].get("finish_reason")
         if stop_reason != "stop":
-            print(f"Error in stopping GPT: {stop_reason}")
+            print(f"Error: GPT was stopped early because of {stop_reason}")
+            return None
 
         # old string format
         # self.instr_set = self.properReformat(raw_instr)
