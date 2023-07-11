@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 import openai
 import tiktoken
 import os
+import re
+
+from datetime import date
 
 class TranscriptConversion:
     """ Class to convert transcription into lab instructions
@@ -19,16 +22,16 @@ class TranscriptConversion:
         self.model = model
         self.instr_set = None
         self.transcript = None
-        self.gpt_prompt = "The following transcript of a lab experiement has text with start and end times of when they were said in a video. Edit the transcript into a clean and concise lab procedure that would appear in a lab report. Then, assign each of the steps with timestamps that align with what is stated in the transcript"
+        self.gpt_prompt = "The following transcript of a lab experiement has text with start and end times of when they were said in a video. Edit the transcript into a clean and concise lab procedure that would appear in a lab report that contains the start and end times in each of the bullet points. Do not include any other text other than the steps in the procedure. Before making this list, generate a short and concise summary of what we are achieving in this lab. With all those in mind, here is the transcript: "
         try:           
             self.encoding = tiktoken.get_encoding("cl100k_base")
             self.encoding = tiktoken.encoding_for_model(model)
         except Exception as e:
             print("Error: Model or specified transcript location is invalid")
     
-    def properReformat(self,raw_response):
+    def properReformat(self, raw_response):
         """
-            reformat raw reponse into proper list
+            Reformat raw reponse into proper string. 
 
             Args:
                 raw_response       (string): raw output from GPT model
@@ -45,26 +48,77 @@ class TranscriptConversion:
 
         return formatted_string
     
-    def generateInstructions(self, transcript_dir):
+    def generateJSON(self, raw_response):
+        """
+            Generates JSON file of lab instruction set
+
+            Args:
+                raw_response (string): raw output from GPT model
+
+            Return:
+                instr_json   (json): reformatted, JSON output
+
+        """
+        raw_response = raw_response.strip()
+        summary, procedure_string = raw_response.split("\n\nProcedure:")
+        summary_content = summary.replace("Summary:", "").strip()
+        steps = procedure_string.split("\n- ")
+
+        procedure = []
+        for step in steps:
+            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            match = re.match(pattern, step)
+            if match:
+                content = match.group(1).strip()
+                start_time = match.group(2).strip()
+                end_time = match.group(3).strip()
+
+                step_obj = {
+                    "step": content,
+                    "start_time": start_time,
+                    "end_time": end_time
+                }
+                procedure.append(step_obj)
+
+        metadata = {
+            "version": "0.1.1-alpha",
+            "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+            "date-generated": date.today.strftime("%d/%m/%Y"),
+            "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
+        }
+
+        instr_json = {
+            "metadata": metadata,
+            "summary": summary_content,
+            "procedure": procedure
+        }
+        return instr_json
+    
+    def generateInstructions(self, transcript_dir, encoding="cl100k_base"):
         """
             apply model onto transcript
 
             Args:
-                transcript_dir (_type_): location of transcript
+                transcript_dir      (_type_): location of transcript
+                encoding - optional (string): tiktoken encoder base 
 
             Return:
-                instr_set      (string): formatted instruction set
+                instr_set      (json): formatted JSON instruction set
         """
 
         # read in transcript txt file
         with open(transcript_dir, "r") as file:
             self.transcript = file.read()
-        num_tokens = len(self.encoding.encode(self.transcript))
 
         # set prompt
         self.gpt_prompt = self.gpt_prompt + self.transcript
 
         openai.api_key = self.secret_key
+        #count tokens to figure out a good max_tokens value
+        encoding = tiktoken.get_encoding(encoding)
+        encoding = tiktoken.encoding_for_model(self.model)
+        num_tokens = len(encoding.encode(self.transcript))
+
         raw_output = openai.Completion.create(
             model = self.model,
             prompt = self.gpt_prompt,
@@ -73,8 +127,10 @@ class TranscriptConversion:
         )
 
         raw_instr = raw_output.get('choices')[0].get('text')
-        self.instr_set = self.properReformat(raw_instr)
-        
+
+        # old string format
+        # self.instr_set = self.properReformat(raw_instr)
+        self.instr_set = self.generateJSON(raw_instr)
         return self.instr_set
 
 

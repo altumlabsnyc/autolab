@@ -1,0 +1,20 @@
+{
+  "summary": "This lab experiment will determine the weight of an empty 25 millimeter graduated cylinder.",
+  "procedure": [
+    {
+      "step": "Turn on the scale",
+      "start_time": "0.0",
+      "end_time": "1.0"
+    },
+    {
+      "step": "Press the zero button if the scale does not read zero",
+      "start_time": "10.0",
+      "end_time": "12.0"
+    },
+    {
+      "step": "Place the graduated cylinder on the scale and record the mass",
+      "start_time": "24.0",
+      "end_time": "32.0"
+    }
+  ]
+}

@@ -19,11 +19,45 @@ from instruction_generator.gpt_transcript import TranscriptConversion
 import json
 import os
 import ffmpeg
+import sys
 from dotenv import load_dotenv
+
+def directoryPrecheck(input_json):
+    """
+            Verifies all directories described in the JSON
+
+            Args:
+                input_json (json): read-in json file
+
+            Return:
+                status     (boolean): true if all pass, false if fail
+
+    """
+
+    # Load variables for stt and instruction generation
+    stt_vars = input_json["transcription_variables"]
+    instr_vars = input_json["instruction_variables"]
+    vid_vars = input_json["video_conversion_variables"]
+
+    # Checking input dirs exist
+    input_bool = os.path.isfile(stt_vars["input_dir"]) and os.path.isfile(instr_vars["input_dir"]) and os.path.isfile(vid_vars["input_dir"])
+    output_bool = os.path.isfile(stt_vars["output_dir"]) and os.path.isfile(instr_vars["output_dir"]) and os.path.isfile(vid_vars["output_dir"])
+    if not input_bool:
+        print(f"FAIL: One or more input files do not exists. Please check the input_dir variables in the 'inputs.json' file.")
+        return False
+
+    # Checking output dirs not exist
+    if output_bool:
+        print(f"FAIL: One or more of the export directories exists. Please check the output_dir variables in the 'inputs.json' file.")
+        return False
+    
+    print("PASS!")
+    return True
+
 
 if __name__ == "__main__":
     # major.minor.patch-pre_release_label
-    print("Autolab v0.1.0-alpha")
+    print("Autolab v0.1.1-alpha")
     print("_" * 20 + "\n")
 
     # print ("Gcloud Authenticating...")
@@ -35,6 +69,13 @@ if __name__ == "__main__":
     with open("inputs.json") as file:
         data = json.load(file)
         print("Success!\n")
+
+    # directory precheck
+    pfCheck = directoryPrecheck(data)
+
+    # if we fail precheck
+    if not pfCheck:
+        sys.exit()
 
     cwd = os.getcwd()
     print(cwd)
@@ -100,8 +141,8 @@ if __name__ == "__main__":
 
     print("Done! Saving...")
     if instr_set != None:
-        with open(instr_dir, "w") as file:
-            file.write(instr_set)
+        with open(instr_dir, "w") as json_file:
+            json.dump(instr_set, json_file, indent=2)
     else:
         print("Error: Instruction Set has not been generated")
     

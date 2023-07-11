@@ -11,7 +11,7 @@
     },
     "instruction_variables": {
       "input_dir": "\\data\\test_output\\test_lab_transcript_time.txt",
-      "output_dir": "\\data\\test_output\\test_lab_instruction_set.txt",
+      "output_dir": "\\data\\test_output\\test_lab_instruction_set.json",
       "model": "text-davinci-003"
     }
   }
