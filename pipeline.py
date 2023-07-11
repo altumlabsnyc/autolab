@@ -21,6 +21,7 @@ import os
 import ffmpeg
 import sys
 from dotenv import load_dotenv
+import platform
 
 def directoryPrecheck(input_json):
     """
@@ -63,10 +64,14 @@ if __name__ == "__main__":
     # print ("Gcloud Authenticating...")
     # os.system('cmd /k "gcloud auth application-default login"')
 
-    print ("Reading JSON...")
+    print("Reading JSON...")
+
+    json_input = (
+        "inputs_win.json" if platform.system() == "Windows" else "inputs_mac.json"
+    )
 
     # all dir in the JSON assume we are in the autolab/ directory
-    with open("inputs.json") as file:
+    with open(json_input) as file:
         data = json.load(file)
         print("Success!\n")
 
@@ -88,11 +93,9 @@ if __name__ == "__main__":
     # 1) Read and Convert mp4 File to .flac
     ###############################################
     print("Generating .flac file")
-
     {
-        ffmpeg
-        .input(cwd + vid_vars["input_dir"])
-        .output(cwd + vid_vars["output_dir"], acodec='flac')
+        ffmpeg.input(cwd + vid_vars["input_dir"])
+        .output(cwd + vid_vars["output_dir"], acodec="flac")
         .run(quiet=True)
     }
 
@@ -102,9 +105,10 @@ if __name__ == "__main__":
     ###############################################
     print("Generating SpeechToText Transcription...")
 
-    stt = SpeechToText(project_id=stt_vars["project_id"],
-                       recognizer_id=stt_vars["recognizer_id"])
-    
+    stt = SpeechToText(
+        project_id=stt_vars["project_id"], recognizer_id=stt_vars["recognizer_id"]
+    )
+
     with open(cwd + stt_vars["input_dir"], "rb") as fd:
         contents = fd.read()
     response = stt.speech_to_text(contents)
@@ -123,7 +127,7 @@ if __name__ == "__main__":
     print("Done! Saving...")
     with open(cwd + stt_vars["output_dir"], "w") as file:
         file.write(format_transcript_time)
-    #@TODO need to also store transcript_concat
+    # @TODO need to also store transcript_concat
 
     print("Success (2/3)\n")
 
@@ -135,8 +139,10 @@ if __name__ == "__main__":
     instr_dir = cwd + instr_vars["output_dir"]
 
     load_dotenv()
-    secret_key = os.getenv('OPENAI_API_KEY')
-    instr_generator = TranscriptConversion(model=instr_vars["model"], secret_key=secret_key)
+    secret_key = os.getenv("OPENAI_API_KEY")
+    instr_generator = TranscriptConversion(
+        model=instr_vars["model"], secret_key=secret_key
+    )
     instr_set = instr_generator.generateInstructions(transcript_dir=transcription_dir)
 
     print("Done! Saving...")
@@ -145,7 +151,7 @@ if __name__ == "__main__":
             json.dump(instr_set, json_file, indent=2)
     else:
         print("Error: Instruction Set has not been generated")
-    
+
     print("Success (3/3)\n")
     print("_" * 20 + "\n")
-    print(f'Instructions saved to \"%s\"\nAutolab terminating' % instr_dir)
+    print(f'Instructions saved to "%s"\nAutolab terminating' % instr_dir)

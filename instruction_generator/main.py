@@ -2,15 +2,24 @@ from gpt_transcript import TranscriptConversion
 import os
 import sys
 import json
+import platform
 from dotenv import load_dotenv
 
 if __name__ == "__main__":
     cwd = os.getcwd()
-    # print(cwd)
-
+    
     # set input and output directories (input dir must exist before running)
-    input_dir = f"{cwd}\\instruction_generator\\data\\gpt_test_transcript_time.txt"
-    output_dir = f"{cwd}\\instruction_generator\\data\\outputs\instruction_set.json"
+    # TODO need to remove. Darwin/Mac format works for Windows
+    #  system = platform.system()
+    # sep = None
+    # if system == "Darwin":  # mac
+    #     sep = "/"
+    # elif system == "Windows":  # windows
+    #     sep = "\\"
+    # else:
+    #     sep = "/"
+    input_dir = f"{cwd}/instruction_generator/data/gpt_test_transcript_time.txt"
+    output_dir = f"{cwd}/instruction_generator/data/outputs/instruction_set.json"
 
     # Checking input dir exist
     if not os.path.isfile(input_dir):
@@ -41,7 +50,9 @@ if __name__ == "__main__":
 
     # generate instructions
     print("Generating Instruction Set...")
-    instr_generator = TranscriptConversion(model="text-davinci-003", secret_key=secret_key)
+    instr_generator = TranscriptConversion(
+        model="text-davinci-003", secret_key=secret_key
+    )
     instr_set = instr_generator.generateInstructions(transcript_dir=input_dir)
     print("Done!\n")
 

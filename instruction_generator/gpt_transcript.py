@@ -7,22 +7,29 @@ import re
 
 from datetime import date
 
+
 class TranscriptConversion:
-    """ Class to convert transcription into lab instructions
-    """
-    
+    """Class to convert transcription into lab instructions"""
+
     def __init__(self, model, secret_key):
-        """ Constructor - sets up OpenAI API's settings
+        """Constructor - sets up OpenAI API's settings
 
         Args:
-            model      (_type_): OpenAI model type used for conversion 
+            model      (_type_): OpenAI model type used for conversion
             secret_key (_type_): API keys
-        """ 
+        """
         self.secret_key = secret_key
         self.model = model
         self.instr_set = None
         self.transcript = None
-        self.gpt_prompt = "The following transcript of a lab experiement has text with start and end times of when they were said in a video. Edit the transcript into a clean and concise lab procedure that would appear in a lab report that contains the start and end times in each of the bullet points. Do not include any other text other than the steps in the procedure. Before making this list, generate a short and concise summary of what we are achieving in this lab. With all those in mind, here is the transcript: "
+
+        # self.gpt_prompt = """The following is a snippet of transcript of a lab experiment that was recorded and timestamped. 
+        # Edit it into a clean and concise procedure that is part of a lab report. 
+        # Assign each of the steps with the input timestamps."""
+
+        self.gpt_prompt = """The following transcript of a lab experiement has text with start and end times of when they were said in a video. 
+        Edit the transcript into a clean and concise lab procedure that would appear in a lab report. Then, assign each of the steps with 
+        timestamps that align with what is stated in the transcript"""
         try:           
             self.encoding = tiktoken.get_encoding("cl100k_base")
             self.encoding = tiktoken.encoding_for_model(model)
@@ -33,18 +40,18 @@ class TranscriptConversion:
         """
             Reformat raw reponse into proper string. 
 
-            Args:
-                raw_response       (string): raw output from GPT model
+        Args:
+            raw_response       (string): raw output from GPT model
 
-            Return:
-                formatted_response (string): reformatted output
+        Return:
+            formatted_response (string): reformatted output
 
         """
 
-        lines = raw_response.split('\n')
+        lines = raw_response.split("\n")
         lines = [line.strip() for line in lines if line.strip()]
-        formatted_lines = [f'{line}' for index, line in enumerate(lines)]
-        formatted_string = '\n'.join(formatted_lines)
+        formatted_lines = [f"{line}" for index, line in enumerate(lines)]
+        formatted_string = "\n".join(formatted_lines)
 
         return formatted_string
     
@@ -96,7 +103,7 @@ class TranscriptConversion:
     
     def generateInstructions(self, transcript_dir, encoding="cl100k_base"):
         """
-            apply model onto transcript
+        apply model onto transcript
 
             Args:
                 transcript_dir      (_type_): location of transcript
@@ -109,6 +116,12 @@ class TranscriptConversion:
         # read in transcript txt file
         with open(transcript_dir, "r") as file:
             self.transcript = file.read()
+        num_tokens = len(self.encoding.encode(self.gpt_prompt + self.transcript))
+        # max gpt prompt tokens is 4096. Call the api more times if source transcript is longer than 4096 tokens
+        if num_tokens > 4096:
+            num_tokens = 4096
+            print("Error: File too large for GPT-3 to process")
+            exit()
 
         # set prompt
         self.gpt_prompt = self.gpt_prompt + self.transcript
@@ -120,9 +133,9 @@ class TranscriptConversion:
         num_tokens = len(encoding.encode(self.transcript))
 
         raw_output = openai.Completion.create(
-            model = self.model,
-            prompt = self.gpt_prompt,
-            temperature = 0.2, #in range (0,2), higher = more creative
+            model=self.model,
+            prompt=self.gpt_prompt,
+            temperature=0.2,  # in range (0,2), higher = more creative
             max_tokens=num_tokens,
         )
 
@@ -132,6 +145,3 @@ class TranscriptConversion:
         # self.instr_set = self.properReformat(raw_instr)
         self.instr_set = self.generateJSON(raw_instr)
         return self.instr_set
-
-
-
