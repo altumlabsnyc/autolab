@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "version": "Autolab 0.1.1-alpha",
+    "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+    "date-generated": "2023-07-11",
+    "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
+  },
+  "summary": "The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract, and set up the work table for the dissection of a pig eye.",
+  "procedure": [
+    {
+      "step": ""
+    },
+    {
+      "step": "Ensure that the lab space has shelves for storage, a sink for utensil cleaning, a hood, a microwave, and a mini fridge."
+    },
+    {
+      "step": "Prepare a fixative for the anterior capsule to reduce elasticity."
+    },
+    {
+      "step": "Prepare fixatives to inject into the limbs to induce a cataract."
+    },
+    {
+      "step": "Set up the work table with an operating microscope and teaching scope for instruction."
+    },
+    {
+      "step": "Lay out all the necessary instruments."
+    },
+    {
+      "step": "Use a foam head to secure the pig eye in place, pinning it down with pens at the approximate location of the rectus muscles."
+    }
+  ]
+}

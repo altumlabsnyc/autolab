@@ -30,16 +30,17 @@ import sys
 from dotenv import load_dotenv
 import platform
 
+
 def directoryPrecheck(input_json):
     """
-            Verifies all directories described in the JSON for any pre-existing files (for write)
+    Verifies all directories described in the JSON for any pre-existing files (for write)
             and already existing files (for read) that would conflict with our program
 
-            Args:
-                input_json (json): read-in json file
+    Args:
+        input_json (json): read-in json file
 
-            Return:
-                status     (boolean): true if all pass, false if fail
+    Return:
+        status     (boolean): true if all pass, false if fail
 
     """
 
@@ -47,7 +48,18 @@ def directoryPrecheck(input_json):
     stt_vars = input_json["transcription_variables"]
     instr_vars = input_json["instruction_variables"]
     vid_vars = input_json["video_conversion_variables"]
-    
+
+    # Checking input dirs exist
+    # input_bool = (
+    #     os.path.isfile(stt_vars["input_dir"])
+    #     and os.path.isfile(instr_vars["input_dir"])
+    #     and os.path.isfile(vid_vars["input_dir"])
+    # )
+    # output_bool = (
+    #     os.path.isfile(stt_vars["output_dir"])
+    #     and os.path.isfile(instr_vars["output_dir"])
+    #     and os.path.isfile(vid_vars["output_dir"])
+    # )
     # retrieve working directory
     cwd = os.getcwd()
 
@@ -56,7 +68,7 @@ def directoryPrecheck(input_json):
     output_bool = os.path.isfile(cwd + stt_vars["output_path"]) or os.path.isfile(cwd + instr_vars["output_path"]) or os.path.isfile(cwd + vid_vars["output_path"])
 
     # Checks if input directories exist for reference/use
-    if not input_bool: 
+    if not input_bool:
         print("FAIL: One or more input files do not exists. Please check the input_path variables in the '{}' file.".format(input_json))
         return False
 
@@ -64,7 +76,7 @@ def directoryPrecheck(input_json):
     if output_bool:
         print("FAIL: One or more of the export directories exists. Please check the output_path variables in the '{}' file.".format(input_json))
         return False
-    
+
     print("PASS!")
     return True
 
