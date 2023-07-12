@@ -48,8 +48,10 @@ class Autolab:
             None
 
         """
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]')
+        logging.basicConfig(level=logging.INFO,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(
+            level=logging.CRITICAL, format='%(asctime)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]')
 
     def _json_params_verify(self, input_json):
         """
@@ -69,7 +71,7 @@ class Autolab:
         cwd = os.getcwd()
 
         params = data["variables"]
-        
+
         # Checking params paths
         if not os.path.isfile(cwd + params["vid_input_path"]):
             raise Exception(
@@ -80,7 +82,7 @@ class Autolab:
         if os.path.isfile(cwd + params["transcript_path"]):
             raise Exception(
                 "Error: variables[\"transcript_path\"]: {} already exists".format(params["transcript_path"]))
-        
+
         if os.path.isfile(cwd + params["project_id"]):
             raise Exception(
                 "Error: variables[\"project_id\"]: {} already exists".format(params["project_id"]))
@@ -90,7 +92,7 @@ class Autolab:
         if os.path.isfile(cwd + params["instr_path"]):
             raise Exception(
                 "Error: variables[\"instr_path\"]: {} already exists".format(params["instr_path"]))
-        
+
         return params
 
     def _precheck(self, input_json):
@@ -105,22 +107,23 @@ class Autolab:
 
         """
 
-        # GCP authentication 
+        # GCP authentication
         if self.check_gcloud_authentication() is False:
             raise Exception("Error: Google Cloud authentication failed!")
         else:
             logging.info("Gcloud auth. successful.")
-        
+
         # JSON existence validation
         if not os.path.isfile(input_json):
-            raise Exception("Error: Cannot validate existence of JSON from the directory provided!")
+            raise Exception(
+                "Error: Cannot validate existence of JSON from the directory provided!")
 
         # read in json for input verification
         with open(input_json) as file:
             data = json.load(file)
 
         # read in json schema to verify json format
-        with open('data/autolab_schema.json') as file:
+        with open('autolab_schema.json') as file:
             schema = json.load(file)
 
         # Schema validation
@@ -171,37 +174,36 @@ class Autolab:
         if not enable_logging:
             logging.disable(logging.CRITICAL)
 
-
-        logging.info("NOTICE: Logging has been set to: ENABLE\nAutolab v0.1.1-alpha")
+        logging.info(
+            "NOTICE: Logging has been set to: ENABLE\nAutolab v0.1.1-alpha")
 
         # Pre-Check
         self._precheck(json_input)
         logging.info("Precheck successful. Verifying JSON parameters...")
         params = self._json_params_verify(json_input)
         logging.info("JSON parameters are OK")
-        
+
         # get working directory
         cwd = os.getcwd()
         print(cwd)
-        
+
         # retrieve output path strings
         self.output_clean = []
         self.output_clean.append(cwd + params["vid_convert_path"])
         self.output_clean.append(cwd + params["transcript_path"])
-        
+
         # 1) Read and Convert mp4 File to .flac
         # @TODO finish more through implementation of VideoConverter
         ###############################################
         logging.info("Generating .flac file")
         vid_converter = VideoConverter(cwd + params["vid_input_path"])
         try:
-            vid_converter.generateAudio(cwd + params["vid_convert_path"], codec="flac", quiet=True)
+            vid_converter.generateAudio(
+                cwd + params["vid_convert_path"], codec="flac", quiet=True)
         except:
             self.clean_outputs()
         logging.info("OK")
         ###############################################
-
-
 
         # 2) SpeechToText Transcription
         ###############################################
@@ -228,7 +230,7 @@ class Autolab:
             start_time = item[1]
             end_time = item[2]
             format_transcript_time += f"{text} [{start_time}-{end_time}]\n"
-        
+
         logging.info("OK. Saving transcript...")
         with open(cwd + params["transcript_path"], "w") as file:
             file.write(format_transcript_time)
@@ -236,8 +238,6 @@ class Autolab:
 
         logging.info("Saved")
         ###############################################
-
-
 
         # 3) Instruction Generation
         ###############################################
@@ -254,10 +254,11 @@ class Autolab:
 
         # get lab instruction's json
         try:
-            instr_json, _ = instr_generator.generateInstructions(transcript_path=transcription_path)
+            instr_json, _ = instr_generator.generateInstructions(
+                transcript_path=transcription_path)
         except:
             self.clean_outputs()
-            
+
         logging.info("OK. Saving...")
 
         with open(instr_path, "w") as json_file:
@@ -271,10 +272,10 @@ class Autolab:
 
         logging.info("Autolab complete: File saved at {}".format(instr_path))
 
-        # reset logging 
+        # reset logging
         if not enable_logging:
             self._default_logging()
-        
+
         return instr_json
 
     def clean_outputs(self):
