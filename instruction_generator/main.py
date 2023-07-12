@@ -67,7 +67,7 @@ if __name__ == "__main__":
     print(f"Generating Instruction Set with {model}...")
     instr_generator = TranscriptConversion(model=model, secret_key=secret_key)
     instr_set, instr_txt = instr_generator.generateInstructions(
-        transcript_dir=input_dir
+        transcript_path=input_dir
     )
     print("Done!\n")
 
