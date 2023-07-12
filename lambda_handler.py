@@ -1,21 +1,22 @@
 """
 lambda_handler.py
 
-TODO
+Acts as the interface to AWS Lambda. This file is used to process a GET request containing a uid of a video file,
 
 Created: 07/11/2023
 
 Usage:
-- TODO
+- At the moment, this file is not used directly. It is used by AWS Lambda to process a GET request containing a uid of a video file.
 """
 
 from autolab import Autolab
 
 import json
-import requests
+import shutil
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
 url: str = os.getenv("SUPABASE_URL")
@@ -24,7 +25,8 @@ supabase: Client = create_client(url, service_key)
 bucket_name: str = os.getenv("SUPABASE_BUCKET_NAME")
 project_id: str = os.getenv("PROJECT_ID")
 recognizer_id: str = os.getenv("RECOGNIZER_ID")
-config_path: str = "config.json"
+config_path: str = "tmp/config.json"
+tmp_dir: str = f'{os.getcwd()}/tmp'
 
 
 def generate_config(uid: str):
@@ -102,22 +104,20 @@ def lambda_handler(event, context):
     # If any error occurs, return a 500 error. We could try to extract
     # the error code (if its from supabase), but probably not worth it.
     except Exception as e:
-        raise e
         return {
             'statusCode': 500,
             'body': json.dumps({
                 'error': str(e)
             })
         }
-
-
-# Testing
-if __name__ == "__main__":
-    generate_config("test")
-    event = {
-        'queryStringParameters': {
-            'uid': 'test'
-        }
-    }
-    context = "context"
-    print(lambda_handler(event, context))
+    finally:
+        # code to delete all files in /tmp/
+        for filename in os.listdir(tmp_dir):
+            file_path = os.path.join(tmp_dir, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                logging.warning(f'Failed to delete {file_path}. Reason: {e}')
