@@ -114,3 +114,14 @@ def lambda_handler(event, context):
                     shutil.rmtree(file_path)
             except Exception as e:
                 logging.warning(f'Failed to delete {file_path}. Reason: {e}')
+
+
+if __name__ == "__main__":
+    generate_config("test")
+    event = {
+        'queryStringParameters': {
+            'uid': 'test'
+        }
+    }
+    context = "context"
+    print(lambda_handler(event, context))
