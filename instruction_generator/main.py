@@ -64,17 +64,24 @@ if __name__ == "__main__":
     # generate instructions
     models = ["text-davinci-003", "gpt-4", "gpt-3.5-turbo"]
     model = models[1]
-    print(f"Generating Instruction Set with {model}...")
+    print(f"Generating Instruction Set with '{model}'...")
     instr_generator = TranscriptConversion(model=model, secret_key=secret_key)
-    instr_set, instr_txt = instr_generator.generateInstructions(
-        transcript_path=input_dir
-    )
-    print("Done!\n")
 
-    # print results
-    print("Results:")
-    print(instr_set)
-    print("\n")
+    instr_set = instr_generator.genInstrv2(transcript_path=input_dir)
+    # print(instr_set)
+
+
+    # instr_set, instr_txt = instr_generator.generateInstructions(
+    #     transcript_path=input_dir
+    # )
+    # print("Done!\n")
+
+    # # print results
+    # print("Results:")
+    # print(instr_set)
+    # print("\n\n\n")
+    # print(instr_txt)
+    # print("\n\n\n")
 
     # saves results
     print("Saving Results...")
@@ -82,7 +89,7 @@ if __name__ == "__main__":
         with open(output_dir, "w") as json_file:
             json.dump(instr_set, json_file, indent=2)
         print(f'Saved to "%s"' % output_dir)
-        with open(txt_output_dir, "w") as file:
-            file.write(instr_txt)
+        # with open(txt_output_dir, "w") as file:
+        #     file.write(instr_txt)
     else:
         print("Error: Cannot save JSON!")
