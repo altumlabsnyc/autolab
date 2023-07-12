@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import openai
 import tiktoken
 from datetime import date
+import re
 
 
 class TranscriptConversion:
@@ -19,7 +20,7 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
-        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step. Transcript: """
+        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step, and indicate which timestamp the step was from in "()". Transcript: """
 
         try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
@@ -69,23 +70,21 @@ class TranscriptConversion:
         procedure = []
         for step in steps:
             # Izzy trying new format that doesn't use timestamps
-            # pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
-            # match = re.match(pattern, step)
-            # if match:
-            #     content = match.group(1).strip()
-            #     start_time = match.group(2).strip()
-            #     end_time = match.group(3).strip()
+            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            match = re.match(pattern, step)
+            if match:
+                content = match.group(1).strip()
+                start_time = match.group(2).strip()
+                end_time = match.group(3).strip()
 
-            #     step_obj = {
-            #         "step": content,
-            #         "start_time": start_time,
-            #         "end_time": end_time,
-            #     }
-            #     procedure.append(step_obj)
-            if step.strip() == "":
-                continue
-            step_obj = {"step": step.strip()}
-            procedure.append(step_obj)
+                step_obj = {
+                    "step": content,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                }
+                procedure.append(step_obj)
+            else:
+                print(f"Error: Cannot parse step {step}")
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
