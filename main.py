@@ -20,5 +20,4 @@ input_json_path = "inputs_win.json"
 
 if __name__ == "__main__":
     autolab = Autolab()
-    instructions = autolab.generate_procedure(input_json_path, cleanup=True, enable_logging=True)
-    print(type(instructions))
+    instructions = autolab.generate_procedure(input_json_path, cleanup=False, enable_logging=True)

@@ -37,26 +37,19 @@ def generate_config(uid: str):
     """
 
     config = {
-        "video_conversion_variables": {
-            "input_path": f"/tmp/{uid}.mp4",
-            "output_path": f"/tmp/{uid}.flac"
-        },
-        "transcription_variables": {
+        "variables": {
+            "vid_input_path": f"/tmp/{uid}.mp4",
+            "vid_convert_path": f"/tmp/{uid}.flac",
+            "transcript_path": f"/tmp/{uid}.txt",
             "project_id": f"{project_id}",
             "recognizer_id": f"{recognizer_id}",
-            "input_path": f"/tmp/{uid}.flac",
-            "output_path": f"/tmp/{uid}.txt",
-        },
-        "instruction_variables": {
-            "input_path": f"/tmp/{uid}.txt",
-            "output_path": f"/tmp/{uid}_procedure.txt",
-            "model": "gpt-4",
-        },
+            "instr_path": f"/tmp/{uid}_procedure.json"
+        }
     }
 
-    # Write config to JSON file
-    with open(config_path, 'w') as f:
-        json.dump(config, f, indent=4)
+    # # Write config to JSON file
+    # with open(config_path, 'w') as f:
+    #     json.dump(config, f, indent=4)
 
 
 def lambda_handler(event, context):

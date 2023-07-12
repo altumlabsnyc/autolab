@@ -11,6 +11,8 @@ Created: 07/06/2023
 from dotenv import load_dotenv
 import openai
 import tiktoken
+import re
+import json
 from datetime import date
 import re
 
@@ -110,6 +112,67 @@ class TranscriptConversion:
         }
         return instr_json
     
+    # NOTE 
+    def genInstrv2(self, transcript_path, encoding="cl100k_base"):
+        """
+        Generates Instruction set by applying the model on the
+        transcript.
+
+            Args:
+                transcript_path      (_type_): location of transcript
+                encoding - optional (string): tiktoken encoder base 
+
+            Return:
+                instr_set      (json): formatted JSON instruction set
+                raw_str       (string): raw string output from GPT model
+        """
+
+        # read in transcript txt file
+        with open(transcript_path, "r") as file:
+            self.transcript = file.read()
+
+        # gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, and format all of it as a JSON with start and end times as different entries. Transcript: """
+        openai.api_key = self.secret_key
+        # count tokens to figure out a good max_tokens value
+        encoding = tiktoken.get_encoding(encoding)
+        encoding = tiktoken.encoding_for_model(self.model)
+        num_tokens = 4097 - len(encoding.encode(self.gpt_prompt + self.transcript))
+
+        # Call GPT4
+        raw_output = None
+        raw_instr = None
+
+        msg = [
+                {"role": "system", "content": self.gpt_prompt},
+                {"role": "user", "content": self.transcript},
+            ]
+        raw_output = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=msg,
+            temperature=0.2,  # in range (0,2), higher = more creative
+            # chatcompletion doesn't need max_tokens parameter
+        )
+        raw_instr = raw_output.get("choices")[0].get("message").get("content")
+        data = json.loads(raw_instr)
+        summary = data["Summary"]
+        procedure = data["Procedure"]
+
+        metadata = {
+            "version": "Autolab 0.1.1-alpha",
+            "author": "Altum Labs",
+            "date-generated": date.today().strftime("%Y-%m-%d"),
+            "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
+        }
+
+        instr_json = {
+            "metadata": metadata,
+            "summary": summary,
+            "procedure": procedure,
+        }
+        return instr_json
+
+        print(raw_instr)
+    
     def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         apply model onto transcript
@@ -163,6 +226,7 @@ class TranscriptConversion:
             print(f"Error: Invalid model specified - {self.model}")
             return None
 
+        print(raw_output)
         stop_reason = raw_output.get("choices")[0].get("finish_reason")
         if stop_reason != "stop":
             print(f"Error: GPT was stopped early because of {stop_reason}")

@@ -68,41 +68,30 @@ class Autolab:
             data = json.load(file)
         cwd = os.getcwd()
 
-        vid_params = data["video_conversion_variables"]
-        stt_params  = data["transcription_variables"]
-        instr_params = data["instruction_variables"]
+        params = data["variables"]
         
-        # Checking vid_params paths
-        if not os.path.isfile(cwd + vid_params["input_path"]):
+        # Checking params paths
+        if not os.path.isfile(cwd + params["vid_input_path"]):
             raise Exception(
-                "Error: Cannot validate existence of video_conversion_variables[\"input_path\"]: {}".format(vid_params["input_path"]))
-        if os.path.isfile(cwd + vid_params["output_path"]):
+                "Error: Cannot validate existence of variables[\"input_path\"]: {}".format(params["vid_input_path"]))
+        if os.path.isfile(cwd + params["vid_convert_path"]):
             raise Exception(
-                "Error: video_conversion_variables[\"output_path\"]: {} already exists".format(vid_params["output_path"]))
+                "Error: variables[\"vid_convert_path\"]: {} already exists".format(params["vid_convert_path"]))
+        if os.path.isfile(cwd + params["transcript_path"]):
+            raise Exception(
+                "Error: variables[\"transcript_path\"]: {} already exists".format(params["transcript_path"]))
         
-        # Checking stt_params paths
-
-        # if vid_params output equals stt_params input path then no need to verify
-        if stt_params["input_path"] != vid_params["output_path"]:
-            if not os.path.isfile(cwd + stt_params["input_path"]):
-                raise Exception(
-                    "Error: Cannot validate existence of transcription[\"input_path\" {}".format(stt_params["input_path"]))
-        if os.path.isfile(cwd + stt_params["output_path"]):
+        if os.path.isfile(cwd + params["project_id"]):
             raise Exception(
-                "Error: transcription[\"output_path\" {} already exists".format(stt_params["output_path"]))
-        
-        # Checking instr_params paths
-        
-        # if stt_params output equals instr_params input path then no need to verify
-        if stt_params["output_path"] != instr_params["input_path"]:
-            if not os.path.isfile(cwd + instr_params["input_path"]):
-                raise Exception(
-                    "Error: Cannot validate existence of instruction[\"input_path\" {}".format(instr_params["input_path"]))
-        if os.path.isfile(cwd + instr_params["output_path"]):
+                "Error: variables[\"project_id\"]: {} already exists".format(params["project_id"]))
+        if os.path.isfile(cwd + params["recognizer_id"]):
             raise Exception(
-                "Error: instruction[\"output_path\" {} already exists".format(instr_params["output_path"]))
-
-        return vid_params, stt_params, instr_params
+                "Error: variables[\"recognizer_id\"]: {} already exists".format(params["recognizer_id"]))
+        if os.path.isfile(cwd + params["instr_path"]):
+            raise Exception(
+                "Error: variables[\"instr_path\"]: {} already exists".format(params["instr_path"]))
+        
+        return params
 
     def _precheck(self, input_json):
         """
@@ -189,7 +178,7 @@ class Autolab:
         # Pre-Check
         self._precheck(json_input)
         logging.info("Precheck successful. Verifying JSON parameters...")
-        vid_params, stt_params, instr_params = self._json_params_verify(json_input)
+        params = self._json_params_verify(json_input)
         logging.info("JSON parameters are OK")
         
         # get working directory
@@ -198,16 +187,16 @@ class Autolab:
         
         # retrieve output path strings
         self.output_clean = []
-        self.output_clean.append(cwd + vid_params["output_path"])
-        self.output_clean.append(cwd + stt_params["output_path"])
+        self.output_clean.append(cwd + params["vid_convert_path"])
+        self.output_clean.append(cwd + params["transcript_path"])
         
         # 1) Read and Convert mp4 File to .flac
         # @TODO finish more through implementation of VideoConverter
         ###############################################
         logging.info("Generating .flac file")
-        vid_converter = VideoConverter(cwd + vid_params["input_path"])
+        vid_converter = VideoConverter(cwd + params["vid_input_path"])
         try:
-            vid_converter.generateAudio(cwd + vid_params["output_path"], codec="flac", quiet=True)
+            vid_converter.generateAudio(cwd + params["vid_convert_path"], codec="flac", quiet=True)
         except:
             self.clean_outputs()
         logging.info("OK")
@@ -219,11 +208,11 @@ class Autolab:
         ###############################################
         logging.info("Generating SpeechToText transcription")
         stt = SpeechToText(
-            project_id=stt_params["project_id"], recognizer_id=stt_params["recognizer_id"]
+            project_id=params["project_id"], recognizer_id=params["recognizer_id"]
         )
 
-        # read in .flac file
-        with open(cwd + stt_params["input_path"], "rb") as fd:
+        # read in audio file previously generated
+        with open(cwd + params["vid_convert_path"], "rb") as fd:
             contents = fd.read()
         response = stt.speech_to_text(contents)
 
@@ -242,7 +231,7 @@ class Autolab:
             format_transcript_time += f"{text} [{start_time}-{end_time}]\n"
         
         logging.info("OK. Saving transcript...")
-        with open(cwd + stt_params["output_path"], "w") as file:
+        with open(cwd + params["transcript_path"], "w") as file:
             file.write(format_transcript_time)
         # @TODO need to also store transcript_concat
 
@@ -253,20 +242,20 @@ class Autolab:
 
         # 3) Instruction Generation
         ###############################################
-        logging.info("Instruction Generation - {}".format(instr_params["model"]))
+        logging.info("Instruction Generation - {}".format(params["model"]))
         logging.info("Generating lab instructions...")
-        transcription_path = cwd + instr_params["input_path"]
-        instr_path = cwd + instr_params["output_path"]
+        transcription_path = cwd + params["transcript_path"]
+        instr_path = cwd + params["instr_path"]
 
         load_dotenv()
         secret_key = os.getenv("OPENAI_API_KEY")
         instr_generator = TranscriptConversion(
-            model=instr_params["model"], secret_key=secret_key
+            model=params["model"], secret_key=secret_key
         )
 
         # get lab instruction's json
         try:
-            instr_json = instr_generator.generateInstructions(transcript_path=transcription_path)
+            instr_json, _ = instr_generator.generateInstructions(transcript_path=transcription_path)
         except:
             self.clean_outputs()
             
