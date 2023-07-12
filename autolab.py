@@ -253,8 +253,8 @@ class Autolab:
 
         # 3) Instruction Generation
         ###############################################
+        logging.info("Instruction Generation - {}".format(instr_params["model"]))
         logging.info("Generating lab instructions...")
-
         transcription_path = cwd + instr_params["input_path"]
         instr_path = cwd + instr_params["output_path"]
 
