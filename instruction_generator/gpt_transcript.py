@@ -94,6 +94,10 @@ class TranscriptConversion:
                     "end_time": end_time,
                 }
                 procedure.append(step_obj)
+            
+            # handle extraneous empty strings
+            elif step == '':
+                pass
             else:
                 print(f"Warning: Cannot parse step {step}. Step skipped.")
 
@@ -168,10 +172,9 @@ class TranscriptConversion:
             "summary": summary,
             "procedure": procedure,
         }
+        
         return instr_json
-
-        print(raw_instr)
-
+    
     def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         apply model onto transcript
@@ -225,7 +228,7 @@ class TranscriptConversion:
             print(f"Error: Invalid model specified - {self.model}")
             return None
 
-        print(raw_output)
+        # print(raw_output)
         stop_reason = raw_output.get("choices")[0].get("finish_reason")
         if stop_reason != "stop":
             print(f"Error: GPT was stopped early because of {stop_reason}")
