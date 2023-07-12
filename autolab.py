@@ -169,7 +169,6 @@ class Autolab:
 
         # Enable or diable logging
         if not enable_logging:
-            logging.info("NOTICE: Logging has been set to: DISABLE")
             logging.disable(logging.CRITICAL)
 
 
