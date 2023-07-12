@@ -1,35 +1,20 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-      "video_conversion_variables": {
+      "variables": {
         "type": "object",
         "properties": {
-          "input_path": { "type": "string" },
-          "output_path": { "type": "string" }
-        },
-        "required": ["input_path", "output_path"]
-      },
-      "transcription_variables": {
-        "type": "object",
-        "properties": {
+          "vid_input_path": { "type": "string" },
+          "vid_convert_path": { "type": "string" },
+          "transcript_path": {"type": "string"},
           "project_id": { "type": "string" },
           "recognizer_id": { "type": "string" },
-          "input_path": { "type": "string" },
-          "output_path": { "type": "string" }
-        },
-        "required": ["project_id", "recognizer_id", "input_path", "output_path"]
-      },
-      "instruction_variables": {
-        "type": "object",
-        "properties": {
-          "input_path": { "type": "string" },
-          "output_path": { "type": "string" },
+          "instr_path": { "type": "string" },
           "model": { "type": "string" }
         },
-        "required": ["input_path", "output_path", "model"]
+        "required": ["vid_input_path", "vid_convert_path", "transcript_path", "project_id", "recognizer_id", "instr_path", "model"]
       }
     },
-    "required": ["video_conversion_variables", "transcription_variables", "instruction_variables"]
+    "required": ["variables"]
   }
   
