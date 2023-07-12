@@ -5,28 +5,34 @@
     "date-generated": "2023-07-11",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract, and set up the work table for the dissection of a pig eye.",
+  "summary": "The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract in a pig eye, and set up the wet lab space for the experiment.",
   "procedure": [
     {
-      "step": ""
+      "step": "Set up shelves for storage of instruments and supplies."
     },
     {
-      "step": "Ensure that the lab space has shelves for storage, a sink for utensil cleaning, a hood, a microwave, and a mini fridge."
+      "step": "Locate the sink area for utensil cleaning."
     },
     {
       "step": "Prepare a fixative for the anterior capsule to reduce elasticity."
     },
     {
-      "step": "Prepare fixatives to inject into the limbs to induce a cataract."
+      "step": "Prepare fixatives for injection into the limbs to induce a cataract."
     },
     {
-      "step": "Set up the work table with an operating microscope and teaching scope for instruction."
+      "step": "Use the microwave to induce a cataract in a pig eye."
     },
     {
-      "step": "Lay out all the necessary instruments."
+      "step": "Store the pig eye in the mini fridge."
     },
     {
-      "step": "Use a foam head to secure the pig eye in place, pinning it down with pens at the approximate location of the rectus muscles."
+      "step": "Set up the operating microscope with the teaching scope for instruction."
+    },
+    {
+      "step": "Lay out all the instruments on the work table."
+    },
+    {
+      "step": "Pin the pig eye down with pens at the location of the rectus muscles."
     }
   ]
 }

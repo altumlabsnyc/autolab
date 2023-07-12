@@ -11,8 +11,8 @@
         "output_path": "/data/test_output/test_lab_transcript_time.txt"
     },
     "instruction_variables": {
-        "input_path": "/data/test_output/test_lab_transcript_time.txt",
-        "output_path": "/data/test_output/test_lab_instruction_set.json",
-        "model": "text-davinci-003"
+        "input_dir": "/data/test_output/test_lab_transcript_time.txt",
+        "output_dir": "/data/test_output/test_lab_instruction_set.json",
+        "model": "gpt-4"
     }
 }
