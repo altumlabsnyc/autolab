@@ -14,6 +14,7 @@ import tiktoken
 import re
 import json
 from datetime import date
+import re
 
 
 class TranscriptConversion:
@@ -31,8 +32,8 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
-        # self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step. Transcript: """
-    
+        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step, and indicate which timestamp the step was from in "()". Transcript: """
+
         try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
             self.encoding = tiktoken.encoding_for_model(model)
@@ -80,27 +81,22 @@ class TranscriptConversion:
 
         procedure = []
         for step in steps:
-            
-            # pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
-            # match = re.match(pattern, step)
-            # if match:
-            #     content = match.group(1).strip()
-            #     start_time = match.group(2).strip()
-            #     end_time = match.group(3).strip()
+            # Izzy trying new format that doesn't use timestamps
+            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            match = re.match(pattern, step)
+            if match:
+                content = match.group(1).strip()
+                start_time = match.group(2).strip()
+                end_time = match.group(3).strip()
 
-            #     step_obj = {
-            #         "step": content,
-            #         "start_time": start_time,
-            #         "end_time": end_time,
-            #     }
-            #     procedure.append(step_obj)
-
-            # TODO continue tests without time stamps 
-
-            if step.strip() == "":
-                continue
-            step_obj = {"step": step.strip()}
-            procedure.append(step_obj)
+                step_obj = {
+                    "step": content,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                }
+                procedure.append(step_obj)
+            else:
+                print(f"Error: Cannot parse step {step}")
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
@@ -116,25 +112,38 @@ class TranscriptConversion:
         }
         return instr_json
     
+    # NOTE 
     def genInstrv2(self, transcript_path, encoding="cl100k_base"):
+        """
+        Generates Instruction set by applying the model on the
+        transcript.
+
+            Args:
+                transcript_path      (_type_): location of transcript
+                encoding - optional (string): tiktoken encoder base 
+
+            Return:
+                instr_set      (json): formatted JSON instruction set
+                raw_str       (string): raw string output from GPT model
+        """
+
         # read in transcript txt file
         with open(transcript_path, "r") as file:
             self.transcript = file.read()
 
-        # set prompt
-        gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, and format all of it as a JSON with start and end times as different entries. Transcript: """
+        # gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, and format all of it as a JSON with start and end times as different entries. Transcript: """
         openai.api_key = self.secret_key
         # count tokens to figure out a good max_tokens value
         encoding = tiktoken.get_encoding(encoding)
         encoding = tiktoken.encoding_for_model(self.model)
-        num_tokens = 4097 - len(encoding.encode(gpt_prompt + self.transcript))
+        num_tokens = 4097 - len(encoding.encode(self.gpt_prompt + self.transcript))
 
         # Call GPT4
         raw_output = None
         raw_instr = None
 
         msg = [
-                {"role": "system", "content": gpt_prompt},
+                {"role": "system", "content": self.gpt_prompt},
                 {"role": "user", "content": self.transcript},
             ]
         raw_output = openai.ChatCompletion.create(

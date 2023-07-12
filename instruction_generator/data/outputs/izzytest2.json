@@ -1,46 +1,51 @@
 {
   "metadata": {
     "version": "Autolab 0.1.1-alpha",
-    "author": "Altum Labs",
-    "date-generated": "2023-07-11",
+    "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+    "date-generated": "2023-07-12",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "The lab aims to describe the setup and equipment available in the wet lab space for eye-related experiments.",
+  "summary": "The goal of this lab is to demonstrate the setup and equipment available in the wet lab space. This includes storage shelves, a sink for utensil cleaning, a hood for preparing fixatives, a microwave and mini fridge for storing samples, an operating microscope with a teaching scope, and a foam head for securing the pig eye.",
   "procedure": [
     {
+      "step": "In the wet lab space, there are storage shelves for instruments and supplies.",
       "start_time": "0.0",
-      "end_time": "22.0",
-      "step": "Prepare fixative for the anterior capsule to reduce elasticity."
+      "end_time": "22.0"
     },
     {
+      "step": "There is also a sink available for cleaning utensils.",
       "start_time": "0.0",
-      "end_time": "22.0",
-      "step": "Prepare fixatives for injection into limbs to induce cataracts."
+      "end_time": "22.0"
     },
     {
+      "step": "A hood is present for preparing fixatives, including a fixative for the anterior capsule to reduce elasticity.",
+      "start_time": "0.0",
+      "end_time": "22.0"
+    },
+    {
+      "step": "Fixatives can also be prepared for injection into limbs to induce a cataract.",
+      "start_time": "0.0",
+      "end_time": "22.0"
+    },
+    {
+      "step": "A microwave is provided for inducing a cataract in a large eye, and a mini fridge is available for storing the eye.",
       "start_time": "22.0",
-      "end_time": "35.0",
-      "step": "Use the microwave to induce a cataract in a large eye."
+      "end_time": "35.0"
     },
     {
-      "start_time": "22.0",
-      "end_time": "35.0",
-      "step": "Store the large eye in the mini fridge."
-    },
-    {
+      "step": "The work table is equipped with an operating microscope and a teaching scope for instructional purposes.",
       "start_time": "35.0",
-      "end_time": "45.0",
-      "step": "Use the operating microscope with the teaching scope for instruction and observation."
+      "end_time": "45.0"
     },
     {
+      "step": "All necessary instruments are laid out on the table.",
       "start_time": "45.0",
-      "end_time": "48.0",
-      "step": "Arrange all the instruments on the work table."
+      "end_time": "48.0"
     },
     {
+      "step": "To secure the pig eye, a foam head is used and the eye is pinned down with pens at the approximate location of the rectus muscles.",
       "start_time": "48.0",
-      "end_time": "59.0",
-      "step": "Secure the pig eye on a foam head using pins."
+      "end_time": "59.0"
     }
   ]
 }
