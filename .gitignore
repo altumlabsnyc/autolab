@@ -166,3 +166,6 @@ cython_debug/
 # Ignore anything in tmp directories and credentials
 tmp/**/*
 credentials/**/*
+
+# Mac Stuff
+**/.DS_Store
