@@ -71,17 +71,17 @@ if __name__ == "__main__":
     # print(instr_set)
 
 
-    # instr_set, instr_txt = instr_generator.generateInstructions(
-    #     transcript_path=input_dir
-    # )
-    # print("Done!\n")
+    instr_set, instr_txt = instr_generator.generateInstructions(
+        transcript_path=input_dir
+    )
+    print("Done!\n")
 
-    # # print results
-    # print("Results:")
-    # print(instr_set)
-    # print("\n\n\n")
-    # print(instr_txt)
-    # print("\n\n\n")
+    # print results
+    print("Results:")
+    print(instr_set)
+    print("\n\n\n")
+    print(instr_txt)
+    print("\n\n\n")
 
     # saves results
     print("Saving Results...")
