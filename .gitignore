@@ -163,5 +163,6 @@ cython_debug/
 
 # Manual Additions
 
-# Ignore anything in tmp directories
+# Ignore anything in tmp directories and credentials
 tmp/**/*
+credentials/**/*

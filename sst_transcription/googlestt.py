@@ -9,6 +9,7 @@ Created: 07/07/2023
 """
 from google.cloud import speech_v2
 from typing import List, Tuple
+import dotenv
 
 
 class SpeechToText:
@@ -22,7 +23,7 @@ class SpeechToText:
             project_id (_type_): Google Project ID
             recognizer_id (_type_): Speech Recognizer to be used (must run create_recognizer if it does not already)
         """
-
+        dotenv.load_dotenv()
         self.__client = speech_v2.SpeechClient()
         self.project_id = project_id
         self.recognizer_id = recognizer_id

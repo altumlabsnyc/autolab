@@ -81,7 +81,6 @@ class TranscriptConversion:
 
         procedure = []
         for step in steps:
-            # Izzy trying new format that doesn't use timestamps
             pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
             match = re.match(pattern, step)
             if match:
@@ -100,7 +99,7 @@ class TranscriptConversion:
             elif step == '':
                 pass
             else:
-                print(f"Error: Cannot parse step '{step}'")
+                print(f"Warning: Cannot parse step {step}. Step skipped.")
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
@@ -115,8 +114,8 @@ class TranscriptConversion:
             "procedure": procedure,
         }
         return instr_json
-    
-    # NOTE 
+
+    # NOTE
     def genInstrv2(self, transcript_path, encoding="cl100k_base"):
         """
         Generates Instruction set by applying the model on the
@@ -124,7 +123,7 @@ class TranscriptConversion:
 
             Args:
                 transcript_path      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base 
+                encoding - optional (string): tiktoken encoder base
 
             Return:
                 instr_set      (json): formatted JSON instruction set
@@ -147,9 +146,9 @@ class TranscriptConversion:
         raw_instr = None
 
         msg = [
-                {"role": "system", "content": self.gpt_prompt},
-                {"role": "user", "content": self.transcript},
-            ]
+            {"role": "system", "content": self.gpt_prompt},
+            {"role": "user", "content": self.transcript},
+        ]
         raw_output = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=msg,
@@ -182,7 +181,7 @@ class TranscriptConversion:
 
             Args:
                 transcript_path      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base 
+                encoding - optional (string): tiktoken encoder base
 
             Return:
                 instr_set      (json): formatted JSON instruction set
