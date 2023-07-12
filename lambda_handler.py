@@ -43,13 +43,14 @@ def generate_config(uid: str):
             "transcript_path": f"/tmp/{uid}.txt",
             "project_id": f"{project_id}",
             "recognizer_id": f"{recognizer_id}",
-            "instr_path": f"/tmp/{uid}_procedure.json"
+            "instr_path": f"/tmp/{uid}_procedure.json",
+            "model": "text-davinci-003"
         }
     }
 
-    # # Write config to JSON file
-    # with open(config_path, 'w') as f:
-    #     json.dump(config, f, indent=4)
+    # Write config to JSON file
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=4)
 
 
 def lambda_handler(event, context):
@@ -68,6 +69,7 @@ def lambda_handler(event, context):
     dict: An HTTP response that contains the status code, headers, and body. The body contains the video transcript
           if the processing was successful or an error message if an error occurred.
     """
+ 
     try:
         # Parse the uid from incoming event
         uid = event['queryStringParameters']['uid']
@@ -85,7 +87,7 @@ def lambda_handler(event, context):
         # Generate transcript from autolab.py and return response
         autolab = Autolab()
         transcript_response = autolab.generate_procedure(
-            config_path, cleanup=True, enable_logging=False)
+            config_path, cleanup=True, enable_logging=True)
         return {
             'statusCode': 200,
             'body': transcript_response,
@@ -117,6 +119,10 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
+    # Check for tmp dir and generate if needed
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
     generate_config("test")
     event = {
         'queryStringParameters': {
@@ -124,4 +130,7 @@ if __name__ == "__main__":
         }
     }
     context = "context"
-    print(lambda_handler(event, context))
+    output = lambda_handler(event, context)
+    print(output)
+    # print("\n\nAutolab Output:\n")
+    # print(output['body'])
