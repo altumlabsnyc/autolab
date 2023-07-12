@@ -1,38 +1,46 @@
 {
   "metadata": {
     "version": "Autolab 0.1.1-alpha",
-    "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+    "author": "Altum Labs",
     "date-generated": "2023-07-11",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "The goal of this lab is to prepare fixatives for the anterior capsule and limbs, induce a cataract in a pig eye, and set up the wet lab space for the experiment.",
+  "summary": "The lab aims to describe the setup and equipment available in the wet lab space for eye-related experiments.",
   "procedure": [
     {
-      "step": "Set up shelves for storage of instruments and supplies."
+      "start_time": "0.0",
+      "end_time": "22.0",
+      "step": "Prepare fixative for the anterior capsule to reduce elasticity."
     },
     {
-      "step": "Locate the sink area for utensil cleaning."
+      "start_time": "0.0",
+      "end_time": "22.0",
+      "step": "Prepare fixatives for injection into limbs to induce cataracts."
     },
     {
-      "step": "Prepare a fixative for the anterior capsule to reduce elasticity."
+      "start_time": "22.0",
+      "end_time": "35.0",
+      "step": "Use the microwave to induce a cataract in a large eye."
     },
     {
-      "step": "Prepare fixatives for injection into the limbs to induce a cataract."
+      "start_time": "22.0",
+      "end_time": "35.0",
+      "step": "Store the large eye in the mini fridge."
     },
     {
-      "step": "Use the microwave to induce a cataract in a pig eye."
+      "start_time": "35.0",
+      "end_time": "45.0",
+      "step": "Use the operating microscope with the teaching scope for instruction and observation."
     },
     {
-      "step": "Store the pig eye in the mini fridge."
+      "start_time": "45.0",
+      "end_time": "48.0",
+      "step": "Arrange all the instruments on the work table."
     },
     {
-      "step": "Set up the operating microscope with the teaching scope for instruction."
-    },
-    {
-      "step": "Lay out all the instruments on the work table."
-    },
-    {
-      "step": "Pin the pig eye down with pens at the location of the rectus muscles."
+      "start_time": "48.0",
+      "end_time": "59.0",
+      "step": "Secure the pig eye on a foam head using pins."
     }
   ]
 }
