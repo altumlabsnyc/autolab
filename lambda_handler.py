@@ -26,10 +26,10 @@ bucket_name: str = os.getenv("SUPABASE_BUCKET_NAME")
 project_id: str = os.getenv("PROJECT_ID")
 recognizer_id: str = os.getenv("RECOGNIZER_ID")
 config_path: str = "tmp/config.json"
-tmp_dir: str = f'{os.getcwd()}/tmp'
+tmp_dir: str = 'tmp'
 
 
-def generate_config(uid: str):
+def generate_config(uid: str, storage_dir: str = tmp_dir):
     """Generates the config file used as input for generate_procedure
 
     Args:
@@ -38,18 +38,18 @@ def generate_config(uid: str):
 
     config = {
         "variables": {
-            "vid_input_path": f"/tmp/{uid}.mp4",
-            "vid_convert_path": f"/tmp/{uid}.flac",
-            "transcript_path": f"/tmp/{uid}.txt",
+            "vid_input_path": f"/{storage_dir}/{uid}.mp4",
+            "vid_convert_path": f"/{storage_dir}/{uid}.flac",
+            "transcript_path": f"/{storage_dir}/{uid}.txt",
             "project_id": f"{project_id}",
             "recognizer_id": f"{recognizer_id}",
-            "instr_path": f"/tmp/{uid}_procedure.json",
+            "instr_path": f"/{storage_dir}/{uid}_procedure.json",
             "model": "text-davinci-003"
         }
     }
 
     # Write config to JSON file
-    with open(config_path, 'w') as f:
+    with open(f'{storage_dir}/config.json', 'w') as f:
         json.dump(config, f, indent=4)
 
 
@@ -69,7 +69,7 @@ def lambda_handler(event, context):
     dict: An HTTP response that contains the status code, headers, and body. The body contains the video transcript
           if the processing was successful or an error message if an error occurred.
     """
- 
+
     try:
         # Parse the uid from incoming event
         uid = event['queryStringParameters']['uid']
@@ -107,8 +107,10 @@ def lambda_handler(event, context):
         }
     finally:
         # code to delete all files in /tmp/
-        for filename in os.listdir(tmp_dir):
-            file_path = os.path.join(tmp_dir, filename)
+        tmp = f'{os.getcwd()}/{tmp_dir}'
+
+        for filename in os.listdir(tmp):
+            file_path = os.path.join(tmp, filename)
             try:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
@@ -116,21 +118,3 @@ def lambda_handler(event, context):
                     shutil.rmtree(file_path)
             except Exception as e:
                 logging.warning(f'Failed to delete {file_path}. Reason: {e}')
-
-
-if __name__ == "__main__":
-    # Check for tmp dir and generate if needed
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
-
-    generate_config("test")
-    event = {
-        'queryStringParameters': {
-            'uid': 'test'
-        }
-    }
-    context = "context"
-    output = lambda_handler(event, context)
-    print(output)
-    # print("\n\nAutolab Output:\n")
-    # print(output['body'])
