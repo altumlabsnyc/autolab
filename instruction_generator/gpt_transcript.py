@@ -1,3 +1,13 @@
+"""
+gpt_transcript.py
+
+This module contains the class that utilizes the OpenAI's GPT API call to
+generate our lab instructions
+
+Created: 07/06/2023
+
+"""
+
 from dotenv import load_dotenv
 import openai
 import tiktoken
@@ -88,7 +98,7 @@ class TranscriptConversion:
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
-            "authors": "Ricky Fok, Izzy Qian, Grant Rinehimer",
+            "author": "Altum Labs",
             "date-generated": date.today().strftime("%Y-%m-%d"),
             "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
         }
@@ -99,14 +109,14 @@ class TranscriptConversion:
             "procedure": procedure,
         }
         return instr_json
-
-    def generateInstructions(self, transcript_dir, encoding="cl100k_base"):
+    
+    def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         apply model onto transcript
 
             Args:
-                transcript_dir      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base
+                transcript_path      (_type_): location of transcript
+                encoding - optional (string): tiktoken encoder base 
 
             Return:
                 instr_set      (json): formatted JSON instruction set
@@ -114,7 +124,7 @@ class TranscriptConversion:
         """
 
         # read in transcript txt file
-        with open(transcript_dir, "r") as file:
+        with open(transcript_path, "r") as file:
             self.transcript = file.read()
 
         # set prompt

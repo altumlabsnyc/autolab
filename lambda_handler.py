@@ -1,7 +1,19 @@
+"""
+lambda_handler.py
+
+TODO
+
+Created: 07/11/2023
+
+Usage:
+- TODO
+"""
+
+from autolab import Autolab
+
 import json
 import requests
 from supabase import create_client, Client
-from autolab import generate_procedure
 from dotenv import load_dotenv
 import os
 
@@ -10,6 +22,39 @@ url: str = os.getenv("SUPABASE_URL")
 service_key: str = os.getenv("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, service_key)
 bucket_name: str = os.getenv("SUPABASE_BUCKET_NAME")
+project_id: str = os.getenv("PROJECT_ID")
+recognizer_id: str = os.getenv("RECOGNIZER_ID")
+config_path: str = "config.json"
+
+
+def generate_config(uid: str):
+    """Generates the config file used as input for generate_procedure
+
+    Args:
+        uid (str): The supabase uid for the video to generate the config for. 
+    """
+
+    config = {
+        "video_conversion_variables": {
+            "input_path": f"/tmp/{uid}.mp4",
+            "output_path": f"/tmp/{uid}.flac"
+        },
+        "transcription_variables": {
+            "project_id": f"{project_id}",
+            "recognizer_id": f"{recognizer_id}",
+            "input_path": f"/tmp/{uid}.flac",
+            "output_path": f"/tmp/{uid}.txt",
+        },
+        "instruction_variables": {
+            "input_path": f"/tmp/{uid}.txt",
+            "output_path": f"/tmp/{uid}_procedure.txt",
+            "model": "gpt-4",
+        },
+    }
+
+    # Write config to JSON file
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=4)
 
 
 def lambda_handler(event, context):
@@ -31,7 +76,6 @@ def lambda_handler(event, context):
     try:
         # Parse the uid from incoming event
         uid = event['queryStringParameters']['uid']
-        print(uid)
 
         # Fetch the video from Supabase and store it in tmp/
         tmp_path = f'{os.getcwd()}/tmp/{uid}.mp4'
@@ -40,8 +84,13 @@ def lambda_handler(event, context):
                 bucket_name).download(f'{uid}.mp4')
             f.write(response)
 
+        # Generate config.json
+        generate_config(uid)
+
         # Generate transcript from autolab.py and return response
-        transcript_response = generate_transcript(tmp_path)
+        autolab = Autolab()
+        transcript_response = autolab.generate_procedure(
+            config_path, cleanup=True, enable_logging=False)
         return {
             'statusCode': 200,
             'body': transcript_response,
@@ -53,6 +102,7 @@ def lambda_handler(event, context):
     # If any error occurs, return a 500 error. We could try to extract
     # the error code (if its from supabase), but probably not worth it.
     except Exception as e:
+        raise e
         return {
             'statusCode': 500,
             'body': json.dumps({
@@ -63,6 +113,7 @@ def lambda_handler(event, context):
 
 # Testing
 if __name__ == "__main__":
+    generate_config("test")
     event = {
         'queryStringParameters': {
             'uid': 'test'

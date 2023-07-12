@@ -1,3 +1,16 @@
+"""
+main.py
+
+This module runs a test of the TranscriptConversion class
+with example data in our local data directory
+
+Usage:
+- Set the 'input_json_path' variable
+- Run this script
+
+Created: 07/11/2023
+
+"""
 from gpt_transcript import TranscriptConversion
 import os
 import sys
@@ -11,13 +24,15 @@ if __name__ == "__main__":
     print("_" * 20 + "\n")
 
     cwd = os.getcwd()
-
+    # input_dir = f"{cwd}/instruction_generator/data/gpt_test_transcript_time.txt"
+    # output_dir = f"{cwd}/instruction_generator/data/outputs/instruction_set.json"
+    
     # set input and output directories (input dir must exist before running)
     input_dir = f"{cwd}/instruction_generator/data/transcript_time2.txt"
     output_dir = f"{cwd}/instruction_generator/data/outputs/izzytest2.json"
     txt_output_dir = f"{cwd}/instruction_generator/data/outputs/izzytest2.txt"
 
-    # Checking input dir exist
+    # Checking input dir exists
     if not os.path.isfile(input_dir):
         print(
             f"Input File '{input_dir}' does not exists. Program cannot proceed. Goodbye."
@@ -52,7 +67,7 @@ if __name__ == "__main__":
     print(f"Generating Instruction Set with {model}...")
     instr_generator = TranscriptConversion(model=model, secret_key=secret_key)
     instr_set, instr_txt = instr_generator.generateInstructions(
-        transcript_dir=input_dir
+        transcript_path=input_dir
     )
     print("Done!\n")
 

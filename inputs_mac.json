@@ -1,14 +1,14 @@
 {
     "video_conversion_variables": {
-        "input_dir": "/data/wetlab1/sec1.mp4",
-        "output_dir": "/data/test_output/test_lab_procedure.flac"
+        "input_path": "/data/wetlab1/sec1.mp4",
+        "output_path": "/data/test_output/test_lab_procedure.flac"
     },
     "transcription_variables": {
         "project_id": "black-beacon-391921",
         "project_number":"431262114962",
         "recognizer_id": "recognizer1",
-        "input_dir": "/data/test_output/test_lab_procedure.flac",
-        "output_dir": "/data/test_output/test_lab_transcript_time.txt"
+        "input_path": "/data/test_output/test_lab_procedure.flac",
+        "output_path": "/data/test_output/test_lab_transcript_time.txt"
     },
     "instruction_variables": {
         "input_dir": "/data/test_output/test_lab_transcript_time.txt",

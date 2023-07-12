@@ -5,7 +5,7 @@
     "date-generated": "2023-07-10",
     "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. "
   },
-  "summary": "This lab experiment is used to find the weight of an empty 25 millimeter graduated cylinder.",
+  "summary": "This lab experiment measures the weight of an empty 25 millimeter graduated cylinder.",
   "procedure": [
     {
       "step": "Turn on the scale",
@@ -13,7 +13,7 @@
       "end_time": "1.0"
     },
     {
-      "step": "Press the zero button to make sure it reads zero",
+      "step": "Press the zero button to ensure it reads zero",
       "start_time": "10.0",
       "end_time": "12.0"
     },
