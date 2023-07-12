@@ -79,7 +79,6 @@ class TranscriptConversion:
 
         procedure = []
         for step in steps:
-            # Izzy trying new format that doesn't use timestamps
             pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
             match = re.match(pattern, step)
             if match:
@@ -94,7 +93,7 @@ class TranscriptConversion:
                 }
                 procedure.append(step_obj)
             else:
-                print(f"Error: Cannot parse step {step}")
+                print(f"Warning: Cannot parse step {step}. Step skipped.")
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
@@ -109,14 +108,14 @@ class TranscriptConversion:
             "procedure": procedure,
         }
         return instr_json
-    
+
     def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         apply model onto transcript
 
             Args:
                 transcript_path      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base 
+                encoding - optional (string): tiktoken encoder base
 
             Return:
                 instr_set      (json): formatted JSON instruction set
