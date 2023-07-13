@@ -25,8 +25,9 @@ supabase: Client = create_client(url, service_key)
 bucket_name: str = os.getenv("SUPABASE_BUCKET_NAME")
 project_id: str = os.getenv("PROJECT_ID")
 recognizer_id: str = os.getenv("RECOGNIZER_ID")
-config_path: str = "tmp/config.json"
-tmp_dir: str = 'tmp'
+config_path: str = "/tmp/config.json"
+gpt_model: str = "gpt-4"
+tmp_dir: str = f"/tmp"
 
 
 def generate_config(uid: str, storage_dir: str = tmp_dir):
@@ -75,19 +76,16 @@ def lambda_handler(event, context):
         uid = event['queryStringParameters']['uid']
 
         # Fetch the video from Supabase and store it in tmp/
-        tmp_path = f'{os.getcwd()}/tmp/{uid}.mp4'
+        tmp_path = f'{tmp_dir}/{uid}.mp4'
         with open(tmp_path, 'wb') as f:
             response = supabase.storage.from_(
                 bucket_name).download(f'{uid}.mp4')
             f.write(response)
 
-        # Generate config.json
-        generate_config(uid)
-
         # Generate transcript from autolab.py and return response
-        autolab = Autolab()
-        transcript_response = autolab.generate_procedure(
-            config_path, cleanup=True, enable_logging=True)
+        autolab = Autolab(project_id, recognizer_id, gpt_model)
+        transcript_response = autolab.simple_procedure_gen(uid,
+                                                           tmp_dir, enable_logging=True)
         return {
             'statusCode': 200,
             'body': transcript_response,
@@ -105,16 +103,3 @@ def lambda_handler(event, context):
                 'error': str(e)
             })
         }
-    finally:
-        # code to delete all files in /tmp/
-        tmp = f'{os.getcwd()}/{tmp_dir}'
-
-        for filename in os.listdir(tmp):
-            file_path = os.path.join(tmp, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
-            except Exception as e:
-                logging.warning(f'Failed to delete {file_path}. Reason: {e}')

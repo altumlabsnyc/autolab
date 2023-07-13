@@ -1,5 +1,5 @@
 import os
-from lambda_handler import lambda_handler, generate_config
+from lambda_function import lambda_handler, generate_config
 from autolab import Autolab
 
 
@@ -12,9 +12,6 @@ def test_pipeline(filename: str, storage_dir: str):
         storage_dir (str): Name of the storage directory. Must be in the main project directory. Just write the name, no slashes
     """
 
-    # Generate config.json
-    generate_config(filename, storage_dir=storage_dir)
-
     # Generate transcript from autolab.py and return response
     autolab = Autolab()
     transcript_response = autolab.generate_procedure(
@@ -24,10 +21,6 @@ def test_pipeline(filename: str, storage_dir: str):
 
 
 def handler_test():
-
-    tmp_dir = f"tmp/"
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
 
     event = {
         'queryStringParameters': {
@@ -40,4 +33,4 @@ def handler_test():
 
 
 if __name__ == "__main__":
-    test_pipeline('sec1', 'test_storage')
+    handler_test()

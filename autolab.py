@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 
 class Autolab:
 
-    def __init__(self):
+    def __init__(self, project_id, recognizer_id, gpt_model):
         """ Constructor - sets logging format and the output_clean variable
                           This is used to keep track of the residual files
                           generated in the process to create our lab
@@ -34,6 +34,10 @@ class Autolab:
         Args:
             None
         """
+        load_dotenv()
+        self.project_id = project_id
+        self.recognizer_id = recognizer_id
+        self.gpt_model = gpt_model
         self._default_logging()
         self.output_clean = None
 
@@ -294,3 +298,75 @@ class Autolab:
                 os.remove(self.output_clean[0])
             if os.path.isfile(self.output_clean[1]):
                 os.remove(self.output_clean[1])
+
+    def simple_procedure_gen(self, uid: str, temp_dir: str, enable_logging=False) -> dict:
+        # 1) Read and Convert mp4 File to .flac
+        # @TODO finish more through implementation of VideoConverter
+        ###############################################
+        logging.info("Generating .flac file")
+        vid_converter = VideoConverter(f"{temp_dir}/{uid}.mp4")
+        vid_converter.generateAudio(
+            f"{temp_dir}/{uid}.flac", codec="flac", quiet=True)
+        logging.info("OK")
+        ###############################################
+
+        # 2) SpeechToText Transcription
+        ###############################################
+        logging.info("Generating SpeechToText transcription")
+        stt = SpeechToText(
+            project_id=self.project_id, recognizer_id=self.recognizer_id
+        )
+
+        # read in audio file previously generated
+        with open(f"{temp_dir}/{uid}.flac", "rb") as fd:
+            contents = fd.read()
+        response = stt.speech_to_text(contents)
+
+        transcript_concat = stt.concatenate_transcripts(response)
+        transcript_time = stt.get_transcript_list_and_times(response)
+
+        # convert transcript_time into string
+        format_transcript_time = ""
+        for item in transcript_time:
+            text = item[0]
+            start_time = item[1]
+            end_time = item[2]
+            format_transcript_time += f"{text} [{start_time}-{end_time}]\n"
+
+        logging.info("OK. Saving transcript...")
+        with open(f"{temp_dir}/{uid}.txt", "w") as file:
+            file.write(format_transcript_time)
+
+        logging.info("Saved")
+        ###############################################
+
+        # 3) Instruction Generation
+        ###############################################
+        logging.info("Instruction Generation - {}".format(self.gpt_model))
+        logging.info("Generating lab instructions...")
+        transcription_path = f"{temp_dir}/{uid}.txt"
+        instr_path = f"{temp_dir}/{uid}_instr.txt"
+
+        load_dotenv()
+        secret_key = os.getenv("OPENAI_API_KEY")
+        instr_generator = TranscriptConversion(
+            model=self.gpt_model, secret_key=secret_key
+        )
+
+        instr_json, _ = instr_generator.generateInstructions(
+            transcript_path=transcription_path)
+
+        logging.info("OK. Saving...")
+
+        with open(instr_path, "w") as json_file:
+            json.dump(instr_json, json_file, indent=2)
+
+        logging.info("Saved")
+
+        logging.info("Autolab complete: File saved at {}".format(instr_path))
+
+        # reset logging
+        if not enable_logging:
+            self._default_logging()
+
+        return instr_json
