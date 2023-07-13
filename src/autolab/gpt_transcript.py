@@ -94,9 +94,9 @@ class TranscriptConversion:
                     "end_time": end_time,
                 }
                 procedure.append(step_obj)
-            
+
             # handle extraneous empty strings
-            elif step == '':
+            elif step == "":
                 pass
             else:
                 print(f"Warning: Cannot parse step {step}. Step skipped.")
@@ -172,9 +172,9 @@ class TranscriptConversion:
             "summary": summary,
             "procedure": procedure,
         }
-        
+
         return instr_json
-    
+
     def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         apply model onto transcript

@@ -16,20 +16,20 @@ import os
 # TODO this does not allow for any other type of audio conversion other than .flac.
 #      Further implementation is required
 
+
 class VideoConverter:
-    """ Converts video inputs into specified audio format"""
+    """Converts video inputs into specified audio format"""
 
     def __init__(self, input_dir):
-        """ Constructor
+        """Constructor
 
-            Args:
-                input_dir   (string): input file path for video that we want to convert
+        Args:
+            input_dir   (string): input file path for video that we want to convert
         """
         self.cwd = os.getcwd()
 
         if not os.path.isfile(input_dir):
-            raise Exception(
-                "Error: Cannot validate existence of {}".format(input_dir))
+            raise Exception("Error: Cannot validate existence of {}".format(input_dir))
         self.input_dir = input_dir
 
     def generateAudio(self, output_dir, codec="flac", quiet=True):
@@ -48,15 +48,13 @@ class VideoConverter:
 
         """
 
-        {
-            ffmpeg.input(self.input_dir)
-            .output(output_dir, acodec=codec)
-            .run(quiet=quiet)
-        }
+        {ffmpeg.input(self.input_dir).output(output_dir, acodec=codec).run(quiet=quiet)}
 
-    def split_and_convert(self, output_dir: str, codec: str = "flac", quiet: bool = True):
+    def split_and_convert(
+        self, output_dir: str, codec: str = "flac", quiet: bool = True
+    ):
         """
-        Splits the input .mp4 file into 60-second segments and converts them to the specified audio codec. The output 
+        Splits the input .mp4 file into 60-second segments and converts them to the specified audio codec. The output
         files will be named like the original file with an appended sequence number and stored in `output_dir`.
 
         Parameters
@@ -74,12 +72,16 @@ class VideoConverter:
             If an error occurs while splitting and converting the .mp4 file.
         """
         base_name = os.path.splitext(os.path.basename(self.input_dir))[0]
-        output_file_template = os.path.join(
-            output_dir, f"{base_name}_%03d.{codec}")
+        output_file_template = os.path.join(output_dir, f"{base_name}_%03d.{codec}")
 
         {
-            ffmpeg
-            .input(self.input_dir)
-            .output(output_file_template, f='segment', segment_time='60', vn=None, acodec=codec)
+            ffmpeg.input(self.input_dir)
+            .output(
+                output_file_template,
+                f="segment",
+                segment_time="60",
+                vn=None,
+                acodec=codec,
+            )
             .run(quiet=quiet)
         }

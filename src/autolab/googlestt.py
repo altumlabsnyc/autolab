@@ -13,8 +13,7 @@ import dotenv
 
 
 class SpeechToText:
-    """Class that handles API calls to Google Speech.
-    """
+    """Class that handles API calls to Google Speech."""
 
     def __init__(self, project_id, recognizer_id):
         """Constructor - Sets up Google client and configuration.
@@ -28,11 +27,13 @@ class SpeechToText:
         self.project_id = project_id
         self.recognizer_id = recognizer_id
         self.__config = speech_v2.RecognitionConfig(
-            auto_decoding_config=speech_v2.AutoDetectDecodingConfig())
+            auto_decoding_config=speech_v2.AutoDetectDecodingConfig()
+        )
 
-    def speech_to_text(self,
-                       content: bytes = 0,
-                       ) -> speech_v2.RecognizeResponse:
+    def speech_to_text(
+        self,
+        content: bytes = 0,
+    ) -> speech_v2.RecognizeResponse:
         """Calls the STT Recognizer model on [content] and returns response
 
         Args:
@@ -45,7 +46,7 @@ class SpeechToText:
         request = speech_v2.RecognizeRequest(
             recognizer=f"projects/{self.project_id}/locations/global/recognizers/{self.recognizer_id}",
             content=content,
-            config=self.__config
+            config=self.__config,
         )
         response = self.__client.recognize(request=request)
 
@@ -62,8 +63,11 @@ class SpeechToText:
         request = speech_v2.CreateRecognizerRequest(
             parent=f"projects/{self.project_id}/locations/global",
             recognizer=speech_v2.Recognizer(
-                display_name=self.recognizer_id, language_codes=["en-US"], model="latest_long"),
-            recognizer_id=self.recognizer_id
+                display_name=self.recognizer_id,
+                language_codes=["en-US"],
+                model="latest_long",
+            ),
+            recognizer_id=self.recognizer_id,
         )
 
         # Make the request
@@ -85,7 +89,9 @@ class SpeechToText:
             transcripts.append(result.alternatives[0].transcript)
         return "".join(transcripts)
 
-    def get_transcript_list_and_times(self, response: speech_v2.RecognizeResponse) -> List[Tuple[str, float, float]]:
+    def get_transcript_list_and_times(
+        self, response: speech_v2.RecognizeResponse
+    ) -> List[Tuple[str, float, float]]:
         """
         Returns a list of triples containing the transcript, start time, and end time for each result in a speech_v2.RecognizeResponse.
 
@@ -101,7 +107,6 @@ class SpeechToText:
         previous_end_time = 0.0  # Start time for the first result
 
         for result in response.results:
-
             transcript = result.alternatives[0].transcript
             end_time = float(result.result_end_offset.seconds)
 

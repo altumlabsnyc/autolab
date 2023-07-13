@@ -8,9 +8,9 @@ NOTE ALL JSON PATHS MUST REFER TO A PATH IN THE /Autolab
 Created: 07/11/2023
 
 """
-from sst_transcription.googlestt import SpeechToText
-from instruction_generator.gpt_transcript import TranscriptConversion
-from video_conversion.vid_converter import VideoConverter
+from .googlestt import SpeechToText
+from .gpt_transcript import TranscriptConversion
+from .vid_converter import VideoConverter
 
 import json
 import os
@@ -24,9 +24,8 @@ from dotenv import load_dotenv
 
 
 class Autolab:
-
     def __init__(self, project_id, recognizer_id, gpt_model):
-        """ Constructor - sets logging format and the output_clean variable
+        """Constructor - sets logging format and the output_clean variable
                           This is used to keep track of the residual files
                           generated in the process to create our lab
                           instructions
@@ -52,22 +51,25 @@ class Autolab:
             None
 
         """
-        logging.basicConfig(level=logging.INFO,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
         logging.basicConfig(
-            level=logging.CRITICAL, format='%(asctime)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]')
+            level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+        )
+        logging.basicConfig(
+            level=logging.CRITICAL,
+            format="%(asctime)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]",
+        )
 
     def _json_params_verify(self, input_json):
         """
-                Verifies and returns all the directories labeled in the JSON file
+        Verifies and returns all the directories labeled in the JSON file
 
-                Args:
-                    input_json (string): input JSON's file path
+        Args:
+            input_json (string): input JSON's file path
 
-                Return:
-                    stt_params   (dict): SpeechToText parameters
-                    instr_params (dict): Instruction Generator parameters
-                    vid_params   (dict): Video conversion parameters
+        Return:
+            stt_params   (dict): SpeechToText parameters
+            instr_params (dict): Instruction Generator parameters
+            vid_params   (dict): Video conversion parameters
 
         """
         with open(input_json) as file:
@@ -79,35 +81,53 @@ class Autolab:
         # Checking params paths
         if not os.path.isfile(cwd + params["vid_input_path"]):
             raise Exception(
-                "Error: Cannot validate existence of variables[\"input_path\"]: {}".format(params["vid_input_path"]))
+                'Error: Cannot validate existence of variables["input_path"]: {}'.format(
+                    params["vid_input_path"]
+                )
+            )
         if os.path.isfile(cwd + params["vid_convert_path"]):
             raise Exception(
-                "Error: variables[\"vid_convert_path\"]: {} already exists".format(params["vid_convert_path"]))
+                'Error: variables["vid_convert_path"]: {} already exists'.format(
+                    params["vid_convert_path"]
+                )
+            )
         if os.path.isfile(cwd + params["transcript_path"]):
             raise Exception(
-                "Error: variables[\"transcript_path\"]: {} already exists".format(params["transcript_path"]))
+                'Error: variables["transcript_path"]: {} already exists'.format(
+                    params["transcript_path"]
+                )
+            )
 
         if os.path.isfile(cwd + params["project_id"]):
             raise Exception(
-                "Error: variables[\"project_id\"]: {} already exists".format(params["project_id"]))
+                'Error: variables["project_id"]: {} already exists'.format(
+                    params["project_id"]
+                )
+            )
         if os.path.isfile(cwd + params["recognizer_id"]):
             raise Exception(
-                "Error: variables[\"recognizer_id\"]: {} already exists".format(params["recognizer_id"]))
+                'Error: variables["recognizer_id"]: {} already exists'.format(
+                    params["recognizer_id"]
+                )
+            )
         if os.path.isfile(cwd + params["instr_path"]):
             raise Exception(
-                "Error: variables[\"instr_path\"]: {} already exists".format(params["instr_path"]))
+                'Error: variables["instr_path"]: {} already exists'.format(
+                    params["instr_path"]
+                )
+            )
 
         return params
 
     def _precheck(self, input_json):
         """
-                Verifies gcloud auth and json + all path existance
+        Verifies gcloud auth and json + all path existance
 
-                Args:
-                    input_json (string): input JSON's file path
+        Args:
+            input_json (string): input JSON's file path
 
-                Return:
-                    None
+        Return:
+            None
 
         """
 
@@ -120,14 +140,15 @@ class Autolab:
         # JSON existence validation
         if not os.path.isfile(input_json):
             raise Exception(
-                "Error: Cannot validate existence of JSON from the directory provided!")
+                "Error: Cannot validate existence of JSON from the directory provided!"
+            )
 
         # read in json for input verification
         with open(input_json) as file:
             data = json.load(file)
 
         # read in json schema to verify json format
-        with open('autolab_schema.json') as file:
+        with open("autolab_schema.json") as file:
             schema = json.load(file)
 
         # Schema validation
@@ -178,8 +199,7 @@ class Autolab:
         if not enable_logging:
             logging.disable(logging.CRITICAL)
 
-        logging.info(
-            "NOTICE: Logging has been set to: ENABLE\nAutolab v0.1.1-alpha")
+        logging.info("NOTICE: Logging has been set to: ENABLE\nAutolab v0.1.1-alpha")
 
         # Pre-Check
         self._precheck(json_input)
@@ -203,7 +223,8 @@ class Autolab:
         vid_converter = VideoConverter(cwd + params["vid_input_path"])
         try:
             vid_converter.generateAudio(
-                cwd + params["vid_convert_path"], codec="flac", quiet=True)
+                cwd + params["vid_convert_path"], codec="flac", quiet=True
+            )
         except:
             self.clean_outputs()
         logging.info("OK")
@@ -259,7 +280,8 @@ class Autolab:
         # get lab instruction's json
         try:
             instr_json, _ = instr_generator.generateInstructions(
-                transcript_path=transcription_path)
+                transcript_path=transcription_path
+            )
         except:
             self.clean_outputs()
 
@@ -299,23 +321,22 @@ class Autolab:
             if os.path.isfile(self.output_clean[1]):
                 os.remove(self.output_clean[1])
 
-    def simple_procedure_gen(self, uid: str, temp_dir: str, enable_logging=False) -> dict:
+    def simple_procedure_gen(
+        self, uid: str, temp_dir: str, enable_logging=False
+    ) -> dict:
         # 1) Read and Convert mp4 File to .flac
         # @TODO finish more through implementation of VideoConverter
         ###############################################
         logging.info("Generating .flac file")
         vid_converter = VideoConverter(f"{temp_dir}/{uid}.mp4")
-        vid_converter.generateAudio(
-            f"{temp_dir}/{uid}.flac", codec="flac", quiet=True)
+        vid_converter.generateAudio(f"{temp_dir}/{uid}.flac", codec="flac", quiet=True)
         logging.info("OK")
         ###############################################
 
         # 2) SpeechToText Transcription
         ###############################################
         logging.info("Generating SpeechToText transcription")
-        stt = SpeechToText(
-            project_id=self.project_id, recognizer_id=self.recognizer_id
-        )
+        stt = SpeechToText(project_id=self.project_id, recognizer_id=self.recognizer_id)
 
         # read in audio file previously generated
         with open(f"{temp_dir}/{uid}.flac", "rb") as fd:
@@ -354,7 +375,8 @@ class Autolab:
         )
 
         instr_json, _ = instr_generator.generateInstructions(
-            transcript_path=transcription_path)
+            transcript_path=transcription_path
+        )
 
         logging.info("OK. Saving...")
 
