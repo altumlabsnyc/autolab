@@ -32,27 +32,27 @@ class VideoConverter:
                 "Error: Cannot validate existence of {}".format(input_dir))
         self.input_dir = input_dir
 
-    def generateAudio(self, output_dir, codec="flac", quiet=True):
-        """
-            Converts our video into specified audio format
+    # def generateAudio(self, output_dir, codec="flac", quiet=True):
+    #     """
+    #         Converts our video into specified audio format
 
-        Args:
-            output_dir  (string): output file path to save audio file to
-            codec       (string): type of encoding for the audio file
-            quiet       (bool): controls ffmpeg's console output
-                                    True: silence output
-                                    False: allow output to print
+    #     Args:
+    #         output_dir  (string): output file path to save audio file to
+    #         codec       (string): type of encoding for the audio file
+    #         quiet       (bool): controls ffmpeg's console output
+    #                                 True: silence output
+    #                                 False: allow output to print
 
-        Return:
-            None
+    #     Return:
+    #         None
 
-        """
+    #     """
 
-        {
-            ffmpeg.input(self.input_dir)
-            .output(output_dir, acodec=codec)
-            .run(quiet=quiet)
-        }
+    #     {
+    #         ffmpeg.input(self.input_dir)
+    #         .output(output_dir, acodec=codec)
+    #         .run(quiet=quiet)
+    #     }
 
     def split_and_convert(self, output_dir: str, codec: str = "flac", quiet: bool = True):
         """
@@ -73,9 +73,12 @@ class VideoConverter:
         ffmpeg.Error
             If an error occurs while splitting and converting the .mp4 file.
         """
+
         base_name = os.path.splitext(os.path.basename(self.input_dir))[0]
         output_file_template = os.path.join(
             output_dir, f"{base_name}_%03d.{codec}")
+
+        # print(output_file_template)
 
         {
             ffmpeg
@@ -83,3 +86,7 @@ class VideoConverter:
             .output(output_file_template, f='segment', segment_time='60', vn=None, acodec=codec)
             .run(quiet=quiet)
         }
+
+        
+                
+

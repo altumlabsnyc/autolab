@@ -6,6 +6,9 @@ def test_split_and_convert():
     input_dir = "data/fullvids/wetlab1.mp4"
     vc = VideoConverter(f"{os.getcwd()}/{input_dir}")
     output_dir = "test_storage"
+
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
     vc.split_and_convert(output_dir)
 
 

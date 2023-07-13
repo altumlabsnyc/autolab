@@ -14,7 +14,6 @@ import tiktoken
 import re
 import json
 from datetime import date
-import re
 
 
 class TranscriptConversion:
@@ -81,12 +80,16 @@ class TranscriptConversion:
 
         procedure = []
         for step in steps:
-            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            # pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
+            pattern = r"^(.*?) \((\d+\.\d+)-(\d+\.\d+)\)$"
             match = re.match(pattern, step)
             if match:
                 content = match.group(1).strip()
+                print(content)
                 start_time = match.group(2).strip()
+                print(start_time)
                 end_time = match.group(3).strip()
+                print(end_time)
 
                 step_obj = {
                     "step": content,

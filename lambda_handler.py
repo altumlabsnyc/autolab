@@ -39,7 +39,7 @@ def generate_config(uid: str, storage_dir: str = tmp_dir):
     config = {
         "variables": {
             "vid_input_path": f"/{storage_dir}/{uid}.mp4",
-            "vid_convert_path": f"/{storage_dir}/{uid}.flac",
+            "vid_convert_dir": f"/{storage_dir}",
             "transcript_path": f"/{storage_dir}/{uid}.txt",
             "project_id": f"{project_id}",
             "recognizer_id": f"{recognizer_id}",

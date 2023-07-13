@@ -40,4 +40,4 @@ def handler_test():
 
 
 if __name__ == "__main__":
-    test_pipeline('sec1', 'test_storage')
+    test_pipeline('2min_test', 'test_storage')
