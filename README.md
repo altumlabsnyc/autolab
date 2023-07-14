@@ -27,7 +27,7 @@ or with conda:
 conda develop .
 ```
 
-### Environment Variables:
+### Environment Variables
 
 The following environment variables must be specified in either a dotenv or in the operating system.
 
