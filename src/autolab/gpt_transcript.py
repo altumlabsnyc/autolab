@@ -32,7 +32,8 @@ class TranscriptConversion:
         self.instr_set = None
         self.transcript = None
 
-        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step, and indicate which timestamp the step was from in "()". Transcript: """
+        self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Return it as a JSON object with the fields {"Summary":, "Procedure": {"step", "start_time", "end_time"}}. Each step is its own object, can be more than one step per timestamp. Transcript: """
+        # self.gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, separate with "Procedure", start with "-" for each step, and indicate which timestamp the step was from in "()". Transcript: """
 
         try:
             self.encoding = tiktoken.get_encoding("cl100k_base")
@@ -40,82 +41,7 @@ class TranscriptConversion:
         except Exception as e:
             print("Error: Model or specified transcript location is invalid")
 
-    def properReformat(self, raw_response):
-        """
-            Reformat raw reponse into proper string.
-
-        Args:
-            raw_response       (string): raw output from GPT model
-
-        Return:
-            formatted_response (string): reformatted output
-
-        """
-
-        lines = raw_response.split("\n")
-        lines = [line.strip() for line in lines if line.strip()]
-        formatted_lines = [f"{line}" for line in lines]
-        formatted_string = "\n".join(formatted_lines)
-
-        return formatted_string
-
-    def generateJSON(self, raw_response):
-        """
-        Generates JSON file of lab instruction set
-
-        Args:
-            raw_response (string): raw output from GPT model
-
-        Return:
-            instr_json   (json): reformatted, JSON output
-
-        """
-        raw_response = raw_response.strip()
-        try:
-            summary, procedure_string = raw_response.split("Procedure:")
-        except Exception as e:
-            print(f"Error: Cannot split summary and procedure. {e}")
-            return None
-        summary_content = summary.replace("Summary:", "").strip()
-        steps = procedure_string.split("\n-")
-
-        procedure = []
-        for step in steps:
-            pattern = r"^(.*?) \((.*?)\-(.*?)\)$"
-            match = re.match(pattern, step)
-            if match:
-                content = match.group(1).strip()
-                start_time = match.group(2).strip()
-                end_time = match.group(3).strip()
-
-                step_obj = {
-                    "step": content,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                }
-                procedure.append(step_obj)
-
-            # handle extraneous empty strings
-            elif step == "":
-                pass
-            else:
-                print(f"Warning: Cannot parse step {step}. Step skipped.")
-
-        metadata = {
-            "version": "Autolab 0.1.1-alpha",
-            "author": "Altum Labs",
-            "date-generated": date.today().strftime("%Y-%m-%d"),
-            "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
-        }
-
-        instr_json = {
-            "metadata": metadata,
-            "summary": summary_content,
-            "procedure": procedure,
-        }
-        return instr_json
-
-    def genInstrv2(self, transcript_path, encoding="cl100k_base"):
+    def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
         Generates Instruction set by applying the model on the
         transcript.
@@ -126,8 +52,7 @@ class TranscriptConversion:
                 encoding - optional (string): tiktoken encoder base
 
             Return:
-                instr_set      (json): formatted JSON instruction set
-                raw_str       (string): raw string output from GPT model
+                instr_set      (json): formatted JSON object with fields {"Summary":, "Procedure": [{"Step", "Start_Time", "End_Time"}]}
         """
 
         # read in transcript txt file
@@ -190,67 +115,3 @@ class TranscriptConversion:
             "procedure": json_instr["Procedure"],
         }
         return result
-
-    def generateInstructions(self, transcript_path, encoding="cl100k_base"):
-        """
-        apply model onto transcript
-
-            Args:
-                transcript_path      (_type_): location of transcript
-                encoding - optional (string): tiktoken encoder base
-
-            Return:
-                instr_set      (json): formatted JSON instruction set
-                raw_str       (string): raw string output from GPT model
-        """
-
-        # read in transcript txt file
-        with open(transcript_path, "r") as file:
-            self.transcript = file.read()
-
-        # set prompt
-        full_prompt = self.gpt_prompt + self.transcript
-
-        openai.api_key = self.secret_key
-        # count tokens to figure out a good max_tokens value
-        encoding = tiktoken.get_encoding(encoding)
-        encoding = tiktoken.encoding_for_model(self.model)
-        num_tokens = 4097 - len(encoding.encode(full_prompt))
-
-        # Call one of the GPT models
-        raw_output = None
-        raw_instr = None
-        if self.model == "gpt-4" or "gpt-3.5-turbo":
-            msg = [
-                {"role": "system", "content": self.gpt_prompt},
-                {"role": "user", "content": self.transcript},
-            ]
-            raw_output = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=msg,
-                temperature=0.2,  # in range (0,2), higher = more creative
-                # chatcompletion doesn't need max_tokens parameter
-            )
-            raw_instr = raw_output.get("choices")[0].get("message").get("content")
-        elif self.model == "text-davinci-003":
-            raw_output = openai.Completion.create(
-                model=self.model,
-                prompt=full_prompt,
-                temperature=0,  # in range (0,2), higher = more creative
-                max_tokens=num_tokens,
-            )
-            raw_instr = raw_output.get("choices")[0].get("text")
-        else:
-            print(f"Error: Invalid model specified - {self.model}")
-            return None
-
-        # print(raw_output)
-        stop_reason = raw_output.get("choices")[0].get("finish_reason")
-        if stop_reason != "stop":
-            print(f"Error: GPT was stopped early because of {stop_reason}")
-            return None
-
-        # old string format
-        # self.instr_set = self.properReformat(raw_instr)
-        self.instr_set = self.generateJSON(raw_instr)
-        return self.instr_set, raw_instr
