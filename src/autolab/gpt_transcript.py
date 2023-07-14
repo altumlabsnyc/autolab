@@ -115,11 +115,11 @@ class TranscriptConversion:
         }
         return instr_json
 
-    # NOTE
     def genInstrv2(self, transcript_path, encoding="cl100k_base"):
         """
         Generates Instruction set by applying the model on the
         transcript.
+        Will keep generating until a valid JSON is returned or reach a max limit of 5 re-generations.
 
             Args:
                 transcript_path      (_type_): location of transcript
@@ -134,31 +134,48 @@ class TranscriptConversion:
         with open(transcript_path, "r") as file:
             self.transcript = file.read()
 
-        # gpt_prompt = """The following is a timestamped transcript of a lab. Edit it into a clean and concise procedure instruction that would appear in a lab report. Include "Summary" concisely stating the lab's goals, and format all of it as a JSON with start and end times as different entries. Transcript: """
         openai.api_key = self.secret_key
         # count tokens to figure out a good max_tokens value
         encoding = tiktoken.get_encoding(encoding)
         encoding = tiktoken.encoding_for_model(self.model)
-        num_tokens = 4097 - len(encoding.encode(self.gpt_prompt + self.transcript))
 
         # Call GPT4
-        raw_output = None
         raw_instr = None
+        json_instr = None
 
-        msg = [
-            {"role": "system", "content": self.gpt_prompt},
-            {"role": "user", "content": self.transcript},
-        ]
-        raw_output = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=msg,
-            temperature=0.2,  # in range (0,2), higher = more creative
-            # chatcompletion doesn't need max_tokens parameter
-        )
-        raw_instr = raw_output.get("choices")[0].get("message").get("content")
-        data = json.loads(raw_instr)
-        summary = data["Summary"]
-        procedure = data["Procedure"]
+        validJson = False
+        maxCalls = 5
+        callCount = 0
+
+        # TODO: discuss with team if we should limit to only 4000 tokens for the input and skip the summary when calls are split up.
+        while not validJson and callCount < maxCalls:
+            msg = [
+                {"role": "system", "content": self.gpt_prompt},
+                {"role": "user", "content": self.transcript},
+            ]
+            raw_output = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=msg,
+                temperature=0.2,  # in range (0,2), higher = more creative
+                # chatcompletion doesn't need max_tokens parameter
+            )
+            raw_instr = raw_output.get("choices")[0].get("message").get("content")
+            try:  # check valid json with the appropriate fields
+                json_instr = json.loads(raw_instr)
+                json_instr["Summary"]
+                json_instr["Procedure"]
+                validJson = True
+            except Exception as e:
+                print(f"Cannot parse JSON. {e} Trying again")
+                callCount += 1
+            stop_reason = raw_output.get("choices")[0].get("finish_reason")
+            if stop_reason != "stop":
+                return {
+                    "statusCode": 500,
+                    "body": "GPT was stopped early because of "
+                    + stop_reason
+                    + ". Please try again.",
+                }
 
         metadata = {
             "version": "Autolab 0.1.1-alpha",
@@ -167,13 +184,12 @@ class TranscriptConversion:
             "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
         }
 
-        instr_json = {
+        result = {
             "metadata": metadata,
-            "summary": summary,
-            "procedure": procedure,
+            "summary": json_instr["Summary"],
+            "procedure": json_instr["Procedure"],
         }
-
-        return instr_json
+        return result
 
     def generateInstructions(self, transcript_path, encoding="cl100k_base"):
         """
