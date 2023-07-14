@@ -10,13 +10,10 @@ Usage:
 """
 
 from autolab.autolab import Autolab
-
 import json
-import shutil
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-import logging
 
 load_dotenv()
 url: str = os.getenv("SUPABASE_URL")
@@ -83,8 +80,8 @@ def lambda_handler(event, context):
 
         # Generate transcript from autolab.py and return response
         autolab = Autolab(project_id, recognizer_id, gpt_model)
-        transcript_response = autolab.simple_procedure_gen(
-            uid, tmp_dir, enable_logging=True
+        transcript_response = autolab.generate_procedure(
+            uid, tmp_dir, enable_logging=False
         )
         return {
             "statusCode": 200,

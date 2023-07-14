@@ -8,13 +8,10 @@ Created: 07/06/2023
 
 """
 
-from dotenv import load_dotenv
 import openai
 import tiktoken
-import re
 import json
 from datetime import date
-import re
 
 
 class TranscriptConversion:
