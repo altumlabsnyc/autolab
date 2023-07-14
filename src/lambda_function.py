@@ -25,9 +25,9 @@ supabase: Client = create_client(url, service_key)
 bucket_name: str = os.getenv("SUPABASE_BUCKET_NAME")
 project_id: str = os.getenv("PROJECT_ID")
 recognizer_id: str = os.getenv("RECOGNIZER_ID")
-config_path: str = "/tmp/config.json"
+tmp_dir: str = os.getenv("TMP_DIR")
+config_path: str = f"{tmp_dir}/config.json"
 gpt_model: str = "gpt-4"
-tmp_dir: str = f"/home/grant/altum/autolab/tmp"
 
 
 def generate_config(uid: str, storage_dir: str = tmp_dir):

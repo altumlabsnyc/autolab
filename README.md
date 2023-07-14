@@ -13,37 +13,32 @@ AutoLab is a proprietary API developed by Altum Labs. It's designed to convert w
 
 ## Installation
 
-This software is proprietary and its use is restricted. For installation details, please contact Altum Labs. To set up the system, cd into the autolab directory and install the packages with pip or conda:
+This project runs on Python 3.10.
+
+This software is proprietary and its use is restricted. For installation details, please contact Altum Labs. To set up the system, cd into the autolab directory and install the packages with pip or conda. This will install the autolab package in editable mode as well as any dependencies.
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 or with conda:
 
 ```bash
-conda install --file requirements.txt
+conda develop .
 ```
 
-### Setting up Google Cloud authentication
+### Environment Variables
 
-You will need to set up the Google Cloud authentication in config.json.
+The following environment variables must be specified in either a dotenv or in the operating system.
 
-### Troubleshooting:
-
-If the Python version isn't compatible, try running installing Python 3.10:
-
-```bash
-conda install python=3.10
-```
-
-(Not recommended) If the installation fails, try overriding the dependencies:
-
-```bash
-pip install -nodeps requirements.txt
-```
-
-As a last resort, you can try to manually install each package by searching their respective installation instructions.
+OPENAI_API_KEY
+SUPABASE_URL
+SUPABASE_SERVICE_KEY
+SUPABASE_BUCKET_NAME
+PROJECT_ID
+RECOGNIZER_ID
+GOOGLE_APPLICATION_CREDENTIALS
+TMP_DIR
 
 ## Important Directories
 
@@ -69,6 +64,16 @@ procedure = lab.generate_procedure('config.json')
 # Returns a json containing the procedure
 print(procedure)
 
+```
+
+## Build and Deploy
+
+Run ./build.sh in the project directory to run the build the project for AWS Lambda deployment. This will generate a autolab.zip file in the ./build/ directory.
+
+If you are getting a permissions error, assure that build.sh has execution permissions.
+
+```bash
+chmod +x build.sh
 ```
 
 ## Built with
