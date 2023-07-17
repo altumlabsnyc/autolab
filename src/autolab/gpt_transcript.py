@@ -13,7 +13,6 @@ import tiktoken
 import json
 from datetime import date
 
-
 class TranscriptConversion:
     """Class to convert transcription into lab instructions"""
 
@@ -98,9 +97,9 @@ class TranscriptConversion:
                     + stop_reason
                     + ". Please try again.",
                 }
-
+            
         metadata = {
-            "version": "Autolab 0.1.1-alpha",
+            "version": "Autolab v1.1.0-alpha",
             "author": "Altum Labs",
             "date-generated": date.today().strftime("%Y-%m-%d"),
             "description": "These generated results are a product of Autolab by Altum Labs. It contains private data and is not for distribution. Unauthorized use of this data for any other purposes is strictly prohibited. ",
