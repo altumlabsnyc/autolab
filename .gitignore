@@ -170,4 +170,4 @@ test_storage/**/*
 
 # Mac Stuff
 **/.DS_Store
-.vscode
+.vscode/

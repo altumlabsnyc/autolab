@@ -40,10 +40,17 @@ RECOGNIZER_ID
 GOOGLE_APPLICATION_CREDENTIALS
 TMP_DIR
 
+### Google Credentials
+
+The Google credentials environment variable specifies a path to a service key (a JSON file)
+
 ## Important Directories
 
-stt_transcriptions - Contains the scripts used to transcribe mp4 or mp3 files using the Google Cloud Speech To Text (STT) v2 API.  
-instruction_generator - Contains the scripts used to convert STT transcriptions into a clean lab procedure using GPT-4.
+src - Contains autolab package and lambda_function (acts as script for AWS Lambda to call)
+
+test - Contains tests (uses pytest)
+
+
 
 ## Running the tests
 
