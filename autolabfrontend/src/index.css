@@ -1,0 +1,13 @@
+div {
+  font-family: 'Poppins', sans-serif;
+  white-space: 'pre-line'
+}
+
+h3 {
+  font-weight: 400;
+  font-style: italic;
+}
+
+.container {
+  padding: 10%;
+}
