@@ -77,9 +77,35 @@ def multi_file_test():
     
     # Testing video paths
     cwd = os.getcwd()
-    relative_mp4_path = "data\wetlab1\wetlab1_2min.mp4"
+    relative_mp4_path = "/data/wetlab1/wetlab1_2min.mp4"
     mp4_path = cwd + relative_mp4_path
     uid = "test_batch_vid"
+
+     # Step 1: Make temp directory
+    os.makedirs(tmp_dir)
+    
+    # Step 2: Run Autolab
+    lab = Autolab(project_id, recognizer_id, gpt_model)
+    try:
+        procedure = lab.generate_procedure_batch(uid, tmp_dir, mp4_path, enable_logging=True)
+    except Exception as e:
+        print(f"Error! Autolab procedure generation unsuccessful. {e}\n{e.with_traceback}")
+
+    # Observe before delete
+    print(procedure)
+    
+    while True:
+        user_input = input("\n\nAutolab test Finished. Observe residual files generated before deletion. Save instructions? (y/n)")
+        if user_input == "y":
+            try:
+                with open(cwd + "/test/autolab_output.json", "w") as f:
+                    # indent here is for easier viewing. It should not be used in practice
+                    json.dump(procedure, f, indent = 2)
+                print(f"Saved to /test/autolab_output.json")
+            except:
+                print("Error! Cannot Save JSON")
+        shutil.rmtree(tmp_dir)
+        break
 
 if __name__ == "__main__":
     # To test Autolab on a single, 60 second video
