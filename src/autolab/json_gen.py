@@ -5,6 +5,7 @@ This module generates input JSON files based on the user's inputs
 NOTE This JSON file is meant to be run by one of the following scripts:
         'autolab.py'
         'lambda_handler.py'
+NOTE This is depricated
 
 Created: 07/11/2023
 
