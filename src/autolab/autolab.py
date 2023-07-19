@@ -145,9 +145,7 @@ class Autolab:
         Generates a procedural script based on video input by converting the video to audio, transcribing the speech,
         and then using an instruction generator to convert the transcription into instructions.
 
-        v2 is a batch input implementation that handles longer videos (>60 seconds) by splitting them into
-        60 second clips
-
+        Contains extra parameter. Made to avoid any issues on Lambda deployment
         Parameters
         ----------
         uid : str
