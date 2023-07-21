@@ -72,7 +72,12 @@ procedure = lab.generate_procedure('config.json')
 print(procedure)
 
 ```
+You can also run the ```test_autolab_local.py``` file in the ```/test``` directory.
 
+Run ```single_file_test()``` to try a 60 second video
+
+Run ```multi_file_test()``` to try a 120 second video (to test longer videos)
+    
 ## Build and Deploy
 
 Run ./build.sh in the project directory to run the build the project for AWS Lambda deployment. This will generate a autolab.zip file in the ./build/ directory.
